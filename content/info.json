@@ -1,0 +1,38 @@
+{
+  "nome": "Café de Rua",
+  "slogan": "O seu refúgio diário para o melhor café",
+  "descricao": "Desde 2024, o Café de Rua tem sido o ponto de encontro preferido da comunidade local.",
+  "contactos": {
+    "telefone": "+351 XXX XXX XXX",
+    "email": "info@cafederua.pt",
+    "morada": "Rua Exemplo, 123",
+    "codigo_postal": "1000-000 Lisboa",
+    "pais": "Portugal"
+  },
+  "redes_sociais": {
+    "facebook": "https://facebook.com/cafederua",
+    "instagram": "https://instagram.com/cafederua"
+  },
+  "sobre": {
+    "titulo": "A Nossa História",
+    "texto": "Desde 2024, o Café de Rua tem sido o ponto de encontro preferido da comunidade local. Nascemos com uma missão simples: servir o melhor café e criar um espaço acolhedor onde todos se sintam em casa. Cada chávena de café é preparada com dedicação, usando grãos cuidadosamente selecionados e torrados para garantir o sabor perfeito.",
+    "valores": [
+      {
+        "titulo": "Qualidade",
+        "descricao": "Apenas os melhores ingredientes"
+      },
+      {
+        "titulo": "Comunidade",
+        "descricao": "Um espaço para todos"
+      },
+      {
+        "titulo": "Sustentabilidade",
+        "descricao": "Práticas responsáveis"
+      },
+      {
+        "titulo": "Paixão",
+        "descricao": "Amor pelo que fazemos"
+      }
+    ]
+  }
+}

@@ -1,0 +1,130 @@
+backend:
+  name: git-gateway
+  branch: main # Nome da branch (pode ser 'main' ou 'master')
+
+# Quando desenvolver localmente
+# backend:
+#   name: proxy
+#   proxy_url: http://localhost:8081/api/v1
+
+media_folder: "images" # Pasta onde as imagens são guardadas
+public_folder: "/images" # Caminho público para as imagens
+
+# Definir local e formato de data
+locale: 'pt'
+
+collections:
+  # ==========================================
+  # MENU
+  # ==========================================
+  - name: "menu"
+    label: "Menu"
+    files:
+      - name: "menu_items"
+        label: "Itens do Menu"
+        file: "content/menu.json"
+        fields:
+          - label: "Cafés"
+            name: "cafes"
+            widget: "list"
+            fields:
+              - { label: "Nome", name: "nome", widget: "string" }
+              - { label: "Descrição", name: "descricao", widget: "string" }
+              - { label: "Preço", name: "preco", widget: "string" }
+          
+          - label: "Bebidas"
+            name: "bebidas"
+            widget: "list"
+            fields:
+              - { label: "Nome", name: "nome", widget: "string" }
+              - { label: "Descrição", name: "descricao", widget: "string" }
+              - { label: "Preço", name: "preco", widget: "string" }
+          
+          - label: "Pastelaria"
+            name: "pastelaria"
+            widget: "list"
+            fields:
+              - { label: "Nome", name: "nome", widget: "string" }
+              - { label: "Descrição", name: "descricao", widget: "string" }
+              - { label: "Preço", name: "preco", widget: "string" }
+          
+          - label: "Sanduíches"
+            name: "sanduiches"
+            widget: "list"
+            fields:
+              - { label: "Nome", name: "nome", widget: "string" }
+              - { label: "Descrição", name: "descricao", widget: "string" }
+              - { label: "Preço", name: "preco", widget: "string" }
+
+  # ==========================================
+  # HORÁRIOS
+  # ==========================================
+  - name: "horarios"
+    label: "Horários"
+    files:
+      - name: "schedule"
+        label: "Horário de Funcionamento"
+        file: "content/horarios.json"
+        fields:
+          - label: "Dias e Horários"
+            name: "horarios"
+            widget: "list"
+            fields:
+              - { label: "Dia(s)", name: "dia", widget: "string", hint: "Ex: Segunda a Sexta" }
+              - { label: "Horário", name: "horas", widget: "string", hint: "Ex: 07:00 - 20:00" }
+
+  # ==========================================
+  # INFORMAÇÕES GERAIS
+  # ==========================================
+  - name: "info"
+    label: "Informações"
+    files:
+      - name: "site_info"
+        label: "Informações do Site"
+        file: "content/info.json"
+        fields:
+          - { label: "Nome do Café", name: "nome", widget: "string" }
+          - { label: "Slogan", name: "slogan", widget: "string" }
+          - { label: "Descrição Curta", name: "descricao", widget: "text" }
+          
+          - label: "Contactos"
+            name: "contactos"
+            widget: "object"
+            fields:
+              - { label: "Telefone", name: "telefone", widget: "string" }
+              - { label: "Email", name: "email", widget: "string" }
+              - { label: "Morada", name: "morada", widget: "string" }
+              - { label: "Código Postal", name: "codigo_postal", widget: "string" }
+              - { label: "País", name: "pais", widget: "string" }
+          
+          - label: "Redes Sociais"
+            name: "redes_sociais"
+            widget: "object"
+            fields:
+              - { label: "Facebook URL", name: "facebook", widget: "string", required: false }
+              - { label: "Instagram URL", name: "instagram", widget: "string", required: false }
+          
+          - label: "Sobre"
+            name: "sobre"
+            widget: "object"
+            fields:
+              - { label: "Título", name: "titulo", widget: "string" }
+              - { label: "Texto", name: "texto", widget: "text" }
+              - label: "Valores"
+                name: "valores"
+                widget: "list"
+                fields:
+                  - { label: "Título", name: "titulo", widget: "string" }
+                  - { label: "Descrição", name: "descricao", widget: "string" }
+
+  # ==========================================
+  # IMAGENS / GALERIA
+  # ==========================================
+  - name: "galeria"
+    label: "Galeria"
+    folder: "images"
+    create: true
+    fields:
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Imagem", name: "image", widget: "image" }
+      - { label: "Descrição", name: "description", widget: "text", required: false }

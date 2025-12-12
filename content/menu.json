@@ -1,0 +1,95 @@
+{
+  "cafes": [
+    {
+      "nome": "Expresso",
+      "descricao": "Café curto e intenso",
+      "preco": "0.80€"
+    },
+    {
+      "nome": "Café Duplo",
+      "descricao": "Expresso duplo para mais energia",
+      "preco": "1.20€"
+    },
+    {
+      "nome": "Galão",
+      "descricao": "Café com leite cremoso",
+      "preco": "1.50€"
+    },
+    {
+      "nome": "Cappuccino",
+      "descricao": "Café com espuma de leite",
+      "preco": "2.00€"
+    },
+    {
+      "nome": "Café Gelado",
+      "descricao": "Perfeito para dias quentes",
+      "preco": "2.50€"
+    }
+  ],
+  "bebidas": [
+    {
+      "nome": "Sumo Natural",
+      "descricao": "Laranja ou limão",
+      "preco": "2.50€"
+    },
+    {
+      "nome": "Chá",
+      "descricao": "Várias variedades",
+      "preco": "1.50€"
+    },
+    {
+      "nome": "Chocolate Quente",
+      "descricao": "Cremoso e reconfortante",
+      "preco": "2.00€"
+    },
+    {
+      "nome": "Batido",
+      "descricao": "Morango, banana ou chocolate",
+      "preco": "3.00€"
+    }
+  ],
+  "pastelaria": [
+    {
+      "nome": "Croissant",
+      "descricao": "Amanteigado e crocante",
+      "preco": "1.20€"
+    },
+    {
+      "nome": "Pastel de Nata",
+      "descricao": "O clássico português",
+      "preco": "1.10€"
+    },
+    {
+      "nome": "Bolo do Dia",
+      "descricao": "Fatia generosa",
+      "preco": "2.50€"
+    },
+    {
+      "nome": "Tosta Mista",
+      "descricao": "Fiambre e queijo",
+      "preco": "2.00€"
+    },
+    {
+      "nome": "Croissant Misto",
+      "descricao": "Recheado com fiambre e queijo",
+      "preco": "2.50€"
+    }
+  ],
+  "sanduiches": [
+    {
+      "nome": "Sanduíche de Atum",
+      "descricao": "Com alface e tomate",
+      "preco": "3.50€"
+    },
+    {
+      "nome": "Sanduíche de Frango",
+      "descricao": "Grelhado com molho",
+      "preco": "4.00€"
+    },
+    {
+      "nome": "Sanduíche Vegetariana",
+      "descricao": "Queijo, tomate e cogumelos",
+      "preco": "3.50€"
+    }
+  ]
+}
