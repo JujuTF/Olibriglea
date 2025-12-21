@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanche Grátis! - Olibriglea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+</head>
+<body>
+    <!-- Elegant Background Pattern -->
+    <div class="bg-pattern">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+            <defs>
+                <pattern id="azulejos" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+                    <!-- Curved ornaments -->
+                    <path d="M0,0 Q50,50 0,100" fill="none" stroke="#1a1464" stroke-width="2" opacity="0.4"/>
+                    <path d="M200,0 Q150,50 200,100" fill="none" stroke="#1a1464" stroke-width="2" opacity="0.4"/>
+                    <path d="M0,200 Q50,150 0,100" fill="none" stroke="#1a1464" stroke-width="2" opacity="0.4"/>
+                    <path d="M200,200 Q150,150 200,100" fill="none" stroke="#1a1464" stroke-width="2" opacity="0.4"/>
+                    <circle cx="100" cy="100" r="30" fill="none" stroke="#B8860B" stroke-width="2" opacity="0.3"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#azulejos)"/>
+        </svg>
+    </div>
+
+    <div class="celebration-card">
+        <!-- Header -->
+        <div class="celebration-header">
+            <!-- Decorative corners -->
+            <svg class="corner-ornament top-left" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,0 Q30,20 0,50 Q20,30 50,0 Z" fill="white"/>
+                <circle cx="25" cy="25" r="8" fill="white" opacity="0.6"/>
+            </svg>
+            <svg class="corner-ornament top-right" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,0 Q30,20 0,50 Q20,30 50,0 Z" fill="white"/>
+                <circle cx="25" cy="25" r="8" fill="white" opacity="0.6"/>
+            </svg>
+
+            <div class="celebration-icon">🏆</div>
+            <h1>Lanche Grátis Disponível!</h1>
+            <p>Parabéns! Completou o seu cartão de pontos</p>
+        </div>
+
+        <!-- Body -->
+        <div class="celebration-body">
+            <!-- Logo -->
+            <div class="logo-display">
+                <img src="/mnt/user-data/uploads/logo.jpg" alt="Olibriglea">
+            </div>
+
+            <!-- Código -->
+            <div class="codigo-section">
+                <p>Mostre este código ao balcão:</p>
+                <div class="codigo-display">OLI001</div>
+            </div>
+
+            <!-- Pontos Complete -->
+            <div class="pontos-complete">
+                <div class="ponto-complete">1</div>
+                <div class="ponto-complete">2</div>
+                <div class="ponto-complete">3</div>
+                <div class="ponto-complete">4</div>
+                <div class="ponto-complete">5</div>
+                <div class="ponto-complete">6</div>
+                <div class="ponto-complete">7</div>
+                <div class="ponto-complete">8</div>
+                <div class="ponto-complete">9</div>
+                <div class="ponto-complete">10</div>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider-ornament">
+                <svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="30" cy="20" rx="25" ry="15" fill="none" stroke="#B8860B" stroke-width="2"/>
+                    <path d="M15,20 Q20,10 25,20" fill="none" stroke="#B8860B" stroke-width="1.5"/>
+                    <path d="M35,20 Q40,10 45,20" fill="none" stroke="#B8860B" stroke-width="1.5"/>
+                </svg>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>Como Resgatar</h3>
+                <ul class="instructions-list">
+                    <li>
+                        <span class="step-number">1</span>
+                        <span>Dirija-se ao balcão da Olibriglea</span>
+                    </li>
+                    <li>
+                        <span class="step-number">2</span>
+                        <span>Mostre este ecrã à Brigite ou ao Miguel</span>
+                    </li>
+                    <li>
+                        <span class="step-number">3</span>
+                        <span>Escolha o seu lanche favorito</span>
+                    </li>
+                    <li>
+                        <span class="step-number">4</span>
+                        <span>Aproveite e comece uma nova acumulação!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Button -->
+            <a href="area-cliente.html" class="btn-voltar">Voltar à Minha Conta</a>
+        </div>
+    </div>
+</body>
+</html>

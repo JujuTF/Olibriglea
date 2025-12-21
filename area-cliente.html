@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Minha Conta - Olibriglea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/clientes.js"></script>
+</head>
+<body>
+    <!-- <header>
+        <nav>
+            <a href="homepage-final.html" class="logo-header">
+                <div class="logo-login">
+                    <img src="/mnt/user-data/uploads/logo.jpg" alt="Olibriglea">
+                </div>
+                <span class="logo-text">Olibriglea</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="#pontos">Pontos</a></li>
+                <li><a href="#encomendas">Encomendas</a></li>
+                <li><a href="homepage-final.html#ementa">Ementa</a></li>
+                <li><a href="login.html" class="btn-logout">Sair</a></li>
+            </ul>
+        </nav>
+    </header> -->
+
+        <!-- Header -->
+    <header>
+        <nav>
+            <a href="#" class="logo-header">
+                <div class="logo-small">
+                    <img src="images\logo.jpg" alt="Olibriglea">
+                </div>
+                <span class="logo-text">Olibriglea</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="#ementa">Ementa</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#contactos">Contactos</a></li>
+                <li><a href="login.html" class="btn-login-header">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <h1>Olá, João Silva!</h1>
+            <p>Bem-vindo de volta à sua conta</p>
+            <div class="user-code">OLI001</div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Cartão de Pontos -->
+            <div class="card pontos-card" id="pontos">
+                <div class="card-header" style="color: white;">
+                    <h2 style="color: white;">Meu Cartão de Pontos</h2>
+                    <a href="#" class="card-link" style="color: var(--dourado);">Ver Histórico</a>
+                </div>
+
+                <div class="pontos-circles">
+                    <div class="ponto-circle filled">1</div>
+                    <div class="ponto-circle filled">2</div>
+                    <div class="ponto-circle filled">3</div>
+                    <div class="ponto-circle filled">4</div>
+                    <div class="ponto-circle filled">5</div>
+                    <div class="ponto-circle filled">6</div>
+                    <div class="ponto-circle filled">7</div>
+                    <div class="ponto-circle">8</div>
+                    <div class="ponto-circle">9</div>
+                    <div class="ponto-circle">10</div>
+                </div>
+
+                <div class="pontos-count">7/10 pontos</div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+
+                <p class="pontos-message">
+                    Faltam <strong>3 refeições</strong> para o seu lanche grátis! 🎯
+                </p>
+
+                <div class="ultima-refeicao">
+                    Última refeição: 10/12/2024
+                </div>
+
+                <div class="pontos-info">
+                    <h3>Como Funciona</h3>
+                    <ul>
+                        <li>Cada refeição completa = 1 ponto</li>
+                        <li>10 pontos = 1 lanche grátis</li>
+                        <li>Mostre o seu código ao balcão: <strong>OLI001</strong></li>
+                        <li>Os pontos nunca expiram</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Ações Rápidas -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--azul); margin-bottom: 1.5rem;">Ações Rápidas</h2>
+                    <div class="cta-group-2">
+                        <button type="button" onclick="document.location='index.html'" class="btn btn-primary">Ver Ementa</button>
+                        <!-- <button type="button" onclick="document.location='index.html'" class="btn btn-secondary">Encomenda Especial</button> -->
+                    </div>
+                </div>
+
+                <!-- Encomendas -->
+                <div class="card" id="encomendas" >
+                    <div class="card-header">
+                        <h2>Encomendas</h2>
+                    </div>
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <p>Disponivel em breve!</p>
+                        <!-- <a href="#" class="btn-primary">Fazer Encomenda</a> -->
+                    </div>
+                </div> 
+            </div>
+        </div>
+
+        <!-- Histórico -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Histórico Recente</h2>
+                <!-- <a href="#" class="card-link">Ver Tudo</a> -->
+            </div>
+            <ul class="historico-list">
+                <li class="historico-item">
+                    <span class="historico-date">10/12/2024</span>
+                    <div class="historico-desc">Refeição do dia</div>
+                    <span class="historico-points">+1</span>
+                </li>
+                <li class="historico-item">
+                    <span class="historico-date">08/12/2024</span>
+                    <div class="historico-desc">Francesinha</div>
+                    <span class="historico-points">+1</span>
+                </li>
+                <li class="historico-item">
+                    <span class="historico-date">05/12/2024</span>
+                    <div class="historico-desc">Caril de camarão</div>
+                    <span class="historico-points">+1</span>
+                </li>
+                <li class="historico-item">
+                    <span class="historico-date">03/12/2024</span>
+                    <div class="historico-desc">Lasanha</div>
+                    <span class="historico-points">+1</span>
+                </li>
+                <li class="historico-item">
+                    <span class="historico-date">01/12/2024</span>
+                    <div class="historico-desc">Arroz de pato</div>
+                    <span class="historico-points">+1</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+<script>
+window.addEventListener('load', async () => {
+    if (!await protegerPagina()) return;
+    await carregarAreaCliente();
+});
+</script>
+</body>
+</html>
