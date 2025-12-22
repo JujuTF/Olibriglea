@@ -179,6 +179,11 @@ async function fazerLogin(email, password) {
         }
 
         console.log('✅ Login bem-sucedido:', data.user.email);
+        
+        // Atualizar UI se session.js estiver carregado
+        if (window.sessionManager) {
+            await window.sessionManager.verificar();
+        }
 
         return {
             sucesso: true,
@@ -198,6 +203,12 @@ async function fazerLogin(email, password) {
 // LOGOUT
 // ============================================
 async function fazerLogout() {
+    // Usar o sistema de sessão se disponível
+    if (window.sessionManager) {
+        return await window.sessionManager.logout();
+    }
+    
+    // Fallback se session.js não estiver carregado
     try {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;

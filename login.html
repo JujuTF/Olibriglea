@@ -94,6 +94,20 @@
                 btnLogin.disabled = false;
             }
         });
+    
+    window.addEventListener('load', async () => {
+    const user = await verificarSessao();
+    
+    if (user) {
+        // Já está logado, redirecionar
+        if (window.sessionManager) {
+            window.sessionManager.redirecionar();
+        } else {
+            window.location.href = 'area-cliente.html';
+        }
+    }
+});
+    
     </script>
       <div data-include="components/scripts.html"></div>
 </body>
