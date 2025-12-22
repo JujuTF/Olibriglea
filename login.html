@@ -6,11 +6,16 @@
     <title>Login - Olibriglea</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/includes.js"></script>
+
+    <!-- Configuração e Autenticação -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/session.js"></script>
 </head>
 <body class="form-page">
     <div class="azulejo-bg"></div>
@@ -61,54 +66,123 @@
         </div>
     </div>
 
+    <!-- APENAS Supabase CDN - SEM outros scripts automáticos -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        console.log('=== INÍCIO LOGIN ===');
+        
+        // Carregar scripts em ordem
+        (async function() {
+            try {
+                console.log('📦 Carregando config.js...');
+                const configResponse = await fetch('js/config.js');
+                const configCode = await configResponse.text();
+                eval(configCode);
+                console.log('✅ config.js carregado');
+                
+                // Pequeno delay
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                console.log('📦 Carregando auth.js...');
+                const authResponse = await fetch('js/auth.js');
+                const authCode = await authResponse.text();
+                eval(authCode);
+                console.log('✅ auth.js carregado');
+                
+                // Verificar se carregou
+                if (typeof supabase === 'undefined') {
+                    throw new Error('❌ Supabase não inicializou');
+                }
+                
+                if (typeof fazerLogin === 'undefined') {
+                    throw new Error('❌ fazerLogin não definido');
+                }
+                
+                console.log('✅ Todos os scripts prontos!');
+                
+                // NÃO verificar sessão automaticamente
+                // Apenas configurar o formulário
+                inicializarFormulario();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar:', error);
+                alert('Erro ao carregar a página. Por favor, recarregue (F5).');
+            }
+        })();
+
+        // Configurar formulário
+        function inicializarFormulario() {
+            console.log('🔧 Configurando formulário...');
+            
+            const loginForm = document.getElementById('loginForm');
+            
+            if (!loginForm) {
+                console.error('❌ Formulário não encontrado');
+                return;
+            }
+            
+            loginForm.addEventListener('submit', handleLogin);
+            console.log('✅ Formulário configurado');
+        }
+
+        // Handler do login
+        async function handleLogin(e) {
             e.preventDefault();
+            console.log('🔐 Tentando fazer login...');
             
             const btnLogin = document.getElementById('btnLogin');
-            const originalText = btnLogin.textContent;
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            // Desabilitar botão
+            btnLogin.disabled = true;
+            btnLogin.textContent = 'Entrando...';
             
             try {
-                // Mostrar loading
-                btnLogin.textContent = 'A entrar...';
-                btnLogin.disabled = true;
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
                 
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
+                console.log('📧 Email:', email);
                 
+                // Fazer login
                 const resultado = await fazerLogin(email, password);
                 
+                console.log('📊 Resultado:', resultado);
+                
                 if (resultado.sucesso) {
-                    // Sucesso - redirecionar
-                    window.location.href = 'area-cliente.html';
+                    console.log('✅ Login bem-sucedido!');
+                    
+                    // Feedback visual
+                    btnLogin.textContent = '✓ Sucesso!';
+                    btnLogin.style.background = '#059669';
+                    
+                    // Redirecionar após delay
+                    setTimeout(() => {
+                        console.log('🔄 Redirecionando...');
+                        window.location.href = 'area-cliente.html';
+                    }, 800);
+                    
                 } else {
-                    // Erro - mostrar mensagem
-                    alert(resultado.mensagem);
-                    btnLogin.textContent = originalText;
+                    // Erro no login
+                    console.error('❌ Erro no login:', resultado.mensagem);
+                    alert(resultado.mensagem || 'Email ou password incorretos');
+                    
                     btnLogin.disabled = false;
+                    btnLogin.textContent = 'Entrar';
                 }
+                
             } catch (error) {
-                console.error('Erro no login:', error);
-                alert('Erro ao fazer login. Por favor, tente novamente.');
-                btnLogin.textContent = originalText;
+                console.error('❌ Erro fatal:', error);
+                alert('Erro ao fazer login: ' + error.message);
+                
                 btnLogin.disabled = false;
+                btnLogin.textContent = 'Entrar';
             }
-        });
-    
-    window.addEventListener('load', async () => {
-    const user = await verificarSessao();
-    
-    if (user) {
-        // Já está logado, redirecionar
-        if (window.sessionManager) {
-            window.sessionManager.redirecionar();
-        } else {
-            window.location.href = 'area-cliente.html';
         }
-    }
-});
-    
+
+        // Debug
+        console.log('✅ Script principal carregado');
     </script>
-      <div data-include="components/scripts.html"></div>
 </body>
 </html>

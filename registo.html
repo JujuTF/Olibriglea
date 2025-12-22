@@ -6,10 +6,11 @@
     <title>Criar Conta - Olibriglea</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Sistema de includes -->
     <script src="js/includes.js"></script>
 </head>
 <body class="form-page">
@@ -27,11 +28,11 @@
 
         <form class="register-form" id="registerForm">
             <div class="form-row">
-                <div class="">
+                <div class="form-group">
                     <label for="firstName">Nome <span class="required">*</span></label>
                     <input type="text" id="firstName" required>
                 </div>
-                <div class="">
+                <div class="form-group">
                     <label for="lastName">Apelido <span class="required">*</span></label>
                     <input type="text" id="lastName" required>
                 </div>
@@ -49,7 +50,7 @@
 
             <div class="form-group">
                 <label for="password">Password <span class="required">*</span></label>
-                <input type="password" id="password" placeholder="Mínimo 8 caracteres" required minlength="8">
+                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required minlength="6">
             </div>
 
             <div class="checkbox-group">
@@ -60,7 +61,7 @@
             </div>
             
             <div class="cta-group-2">
-                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Criar Conta</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Criar Conta</button>
             </div>
         </form>
 
@@ -78,7 +79,7 @@
             
             <div class="codigo-display">
                 <p>O seu código de cliente:</p>
-                <div class="codigo" id="codigoCliente">OLI000</div>
+                <div class="codigo" id="codigoCliente">OLI001</div>
             </div>
             
             <p style="font-size: 0.95rem; color: #666; height: 4rem;">
@@ -92,53 +93,89 @@
         </div>
     </div>
 
-    <script>
-        const form = document.getElementById('registerForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const termsCheckbox = document.getElementById('terms');
+    <!-- Scripts comuns via includes -->
+    <div data-include="components/scripts.html"></div>
 
-        // Ativar botão apenas quando aceitar termos
-        termsCheckbox.addEventListener('change', function() {
-            submitBtn.disabled = !this.checked;
+    <!-- Scripts específicos desta página -->
+    <script>
+        // Aguardar includes carregarem
+        document.addEventListener('includesCarregados', function() {
+            console.log('✅ Scripts carregados, inicializando registo...');
+            inicializarRegisto();
         });
 
-        // Submeter formulário
-        form.addEventListener('submit', async (e) => {
+        // Se já carregou
+        if (typeof registarCliente !== 'undefined') {
+            inicializarRegisto();
+        }
+
+        function inicializarRegisto() {
+            const form = document.getElementById('registerForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const termsCheckbox = document.getElementById('terms');
+
+            // Desabilitar botão se termos não aceites
+            termsCheckbox.addEventListener('change', function() {
+                submitBtn.disabled = !this.checked;
+            });
+
+            // Handler do formulário
+            if (form) {
+                form.addEventListener('submit', handleRegisto);
+            }
+        }
+
+        async function handleRegisto(e) {
             e.preventDefault();
             
-            const originalText = submitBtn.textContent;
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Desabilitar botão
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Criando conta...';
             
             try {
-                // Mostrar loading
-                submitBtn.textContent = 'A criar conta...';
-                submitBtn.disabled = true;
-                
+                // Recolher dados do formulário
                 const formData = {
-                    nome: document.getElementById('firstName').value,
-                    apelido: document.getElementById('lastName').value,
-                    email: document.getElementById('email').value,
-                    telefone: document.getElementById('phone').value,
+                    nome: document.getElementById('firstName').value.trim(),
+                    apelido: document.getElementById('lastName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    telefone: document.getElementById('phone').value.trim(),
                     password: document.getElementById('password').value,
+                    newsletter: false
                 };
-                
+
+                console.log('Tentando registar:', formData.email);
+
+                // Verificar se função está disponível
+                if (typeof registarCliente === 'undefined') {
+                    throw new Error('Função registarCliente não está carregada. Aguarde um momento e tente novamente.');
+                }
+
+                // Registar cliente
                 const resultado = await registarCliente(formData);
-                
+
                 if (resultado.sucesso) {
-                    // Mostrar código no modal
+                    console.log('✅ Registo bem-sucedido!');
+                    
+                    // Mostrar modal com código
                     document.getElementById('codigoCliente').textContent = resultado.codigo;
                     document.getElementById('successModal').classList.add('show');
+                    
                 } else {
-                    alert(resultado.mensagem);
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = !termsCheckbox.checked;
+                    // Erro no registo
+                    alert(resultado.mensagem || 'Erro ao criar conta');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Criar Conta';
                 }
+
             } catch (error) {
                 console.error('Erro no registo:', error);
-                alert('Erro ao criar conta. Por favor, tente novamente.');
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = !termsCheckbox.checked;
+                alert(error.message || 'Erro ao criar conta. Tente novamente.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Criar Conta';
             }
-        });
+        }
 
         // Fechar modal ao clicar no fundo
         document.getElementById('successModal').addEventListener('click', function(e) {
@@ -147,6 +184,5 @@
             }
         });
     </script>
-      <div data-include="components/scripts.html"></div>
 </body>
 </html>

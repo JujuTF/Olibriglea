@@ -1,262 +1,190 @@
 // ============================================
-// 🔐 session.js - Gestão de Sessão
+// 🔐 session.js - Gestão de Sessão (CORRIGIDO)
 // ============================================
 
+// IMPORTANTE: Este ficheiro apenas DEFINE funções
+// NÃO executa nada automaticamente ao carregar
+
+console.log('📦 session.js carregado');
+
 // ============================================
-// VERIFICAR SESSÃO E ATUALIZAR UI
+// VERIFICAR SESSÃO ATUAL
 // ============================================
-async function verificarEAtualizarSessao() {
+async function verificarSessaoAtual() {
     try {
+        // Verificar se supabase existe
+        if (typeof supabase === 'undefined') {
+            console.warn('Supabase ainda não carregado');
+            return null;
+        }
+
         const { data: { user }, error } = await supabase.auth.getUser();
         
         if (error) {
             console.error('Erro ao verificar sessão:', error);
-            mostrarUIDeslogado();
             return null;
         }
         
-        if (user) {
-            console.log('✅ Utilizador logado:', user.email);
-            await mostrarUILogado(user);
-            return user;
-        } else {
-            console.log('ℹ️ Nenhum utilizador logado');
-            mostrarUIDeslogado();
-            return null;
-        }
-        
+        return user;
     } catch (error) {
-        console.error('❌ Erro na verificação:', error);
-        mostrarUIDeslogado();
+        console.error('Erro ao verificar sessão:', error);
         return null;
     }
 }
 
 // ============================================
-// MOSTRAR UI PARA UTILIZADOR LOGADO
+// ATUALIZAR UI DO HEADER COM SESSÃO
 // ============================================
-async function mostrarUILogado(user) {
-    // Buscar dados completos do utilizador
-    const { data: userData, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-    
-    if (error) {
-        console.error('Erro ao buscar dados:', error);
+async function atualizarHeaderComSessao() {
+    try {
+        const user = await verificarSessaoAtual();
+        
+        if (!user) {
+            console.log('Nenhum utilizador logado');
+            return;
+        }
+
+        // Buscar dados do utilizador
+        const { data: userData, error } = await supabase
+            .from('users')
+            .select('nome, apelido')
+            .eq('id', user.id)
+            .single();
+
+        if (error) {
+            console.error('Erro ao buscar dados do utilizador:', error);
+            return;
+        }
+
+        // Atualizar botão de login para mostrar nome
+        const btnLogin = document.querySelector('.btn-login-header');
+        
+        if (btnLogin && userData) {
+            const primeiroNome = userData.nome;
+            btnLogin.textContent = `Olá, ${primeiroNome}`;
+            btnLogin.href = 'area-cliente.html';
+            
+            console.log('✅ Header atualizado com sessão');
+        }
+
+    } catch (error) {
+        console.error('Erro ao atualizar header:', error);
+    }
+}
+
+// ============================================
+// LISTENER DE MUDANÇAS DE AUTENTICAÇÃO
+// ============================================
+function iniciarListenerSessao() {
+    if (typeof supabase === 'undefined') {
+        console.warn('Supabase não disponível para listener');
         return;
     }
-    
-    // Atualizar botão de login
-    const btnLogin = document.querySelector('.btn-login-header');
-    if (btnLogin) {
-        btnLogin.textContent = `Olá, ${userData.nome}`;
-        btnLogin.href = 'area-cliente.html';
-        btnLogin.style.background = 'var(--dourado)';
-        btnLogin.style.color = 'var(--azul)';
-    }
-    
-    // Adicionar menu dropdown (opcional)
-    const nav = document.querySelector('nav ul.nav-menu');
-    if (nav && !document.getElementById('user-menu')) {
-        const userMenu = document.createElement('li');
-        userMenu.id = 'user-menu';
-        userMenu.style.position = 'relative';
-        
-        userMenu.innerHTML = `
-            <a href="#" class="user-menu-toggle" style="display: flex; align-items: center; gap: 0.5rem;">
-                <span>${userData.nome}</span>
-                <span style="font-size: 0.8rem;">▼</span>
-            </a>
-            <div class="user-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000;">
-                <a href="area-cliente.html" style="display: block; padding: 1rem; color: var(--azul); text-decoration: none; border-bottom: 1px solid var(--creme);">
-                    👤 Minha Conta
-                </a>
-                <a href="#" class="btn-logout-menu" style="display: block; padding: 1rem; color: #dc2626; text-decoration: none;">
-                    🚪 Sair
-                </a>
-            </div>
-        `;
-        
-        nav.appendChild(userMenu);
-        
-        // Toggle dropdown
-        const toggle = userMenu.querySelector('.user-menu-toggle');
-        const dropdown = userMenu.querySelector('.user-dropdown');
-        
-        toggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        });
-        
-        // Fechar dropdown ao clicar fora
-        document.addEventListener('click', (e) => {
-            if (!userMenu.contains(e.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
-        
-        // Logout
-        const btnLogoutMenu = userMenu.querySelector('.btn-logout-menu');
-        btnLogoutMenu.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await fazerLogout();
-        });
-    }
-}
 
-// ============================================
-// MOSTRAR UI PARA UTILIZADOR DESLOGADO
-// ============================================
-function mostrarUIDeslogado() {
-    // Restaurar botão de login original
-    const btnLogin = document.querySelector('.btn-login-header');
-    if (btnLogin) {
-        btnLogin.textContent = 'Iniciar Sessão';
-        btnLogin.href = 'login.html';
-        btnLogin.style.background = 'var(--azul)';
-        btnLogin.style.color = 'white';
-    }
-    
-    // Remover menu dropdown se existir
-    const userMenu = document.getElementById('user-menu');
-    if (userMenu) {
-        userMenu.remove();
-    }
-}
-
-// ============================================
-// PERSISTÊNCIA DE SESSÃO
-// ============================================
-async function configurarPersistenciaSessao() {
-    // O Supabase já mantém a sessão por padrão
-    // Mas podemos ouvir mudanças de autenticação
-    
     supabase.auth.onAuthStateChange((event, session) => {
-        console.log('🔄 Auth state changed:', event);
+        console.log('📡 Mudança de autenticação:', event);
         
-        switch(event) {
+        switch (event) {
             case 'SIGNED_IN':
                 console.log('✅ Utilizador fez login');
-                verificarEAtualizarSessao();
+                atualizarHeaderComSessao();
                 break;
                 
             case 'SIGNED_OUT':
                 console.log('👋 Utilizador fez logout');
-                mostrarUIDeslogado();
+                // Recarregar página para limpar estado
+                if (window.location.pathname !== '/index.html' && 
+                    window.location.pathname !== '/') {
+                    window.location.href = 'index.html';
+                }
                 break;
                 
             case 'TOKEN_REFRESHED':
-                console.log('🔄 Token renovado');
-                break;
-                
-            case 'USER_UPDATED':
-                console.log('👤 Dados atualizados');
-                verificarEAtualizarSessao();
+                console.log('🔄 Token atualizado');
                 break;
         }
     });
 }
 
 // ============================================
-// LOGOUT MELHORADO
+// GESTOR DE SESSÃO PRINCIPAL
 // ============================================
-async function fazerLogoutCompleto() {
-    try {
-        const { error } = await supabase.auth.signOut();
+const sessionManager = {
+    // Verificar se está logado
+    async verificar() {
+        return await verificarSessaoAtual();
+    },
+    
+    // Atualizar UI
+    async atualizarUI() {
+        await atualizarHeaderComSessao();
+    },
+    
+    // Iniciar listener
+    iniciarListener() {
+        iniciarListenerSessao();
+    },
+    
+    // Redirecionar baseado em estado
+    async redirecionar() {
+        const user = await verificarSessaoAtual();
         
-        if (error) {
-            console.error('Erro no logout:', error);
-            // Mesmo com erro, limpar UI
+        if (user) {
+            window.location.href = 'area-cliente.html';
+        } else {
+            window.location.href = 'login.html';
         }
-        
-        console.log('✅ Logout bem-sucedido');
-        
-        // Atualizar UI
-        mostrarUIDeslogado();
-        
-        // Redirecionar para home
-        window.location.href = 'index.html';
-        
-    } catch (error) {
-        console.error('❌ Erro fatal no logout:', error);
-        // Forçar logout localmente
-        mostrarUIDeslogado();
-        window.location.href = 'index.html';
+    },
+    
+    // Fazer logout
+    async logout() {
+        try {
+            const { error } = await supabase.auth.signOut();
+            
+            if (error) throw error;
+            
+            console.log('✅ Logout bem-sucedido');
+            window.location.href = 'index.html';
+            
+        } catch (error) {
+            console.error('Erro no logout:', error);
+            alert('Erro ao sair. Tente novamente.');
+        }
     }
-}
+};
+
+// Exportar para uso global
+window.sessionManager = sessionManager;
 
 // ============================================
-// PROTEGER PÁGINA COM REDIRECT
+// FUNÇÃO DE INICIALIZAÇÃO (CHAMADA MANUALMENTE)
 // ============================================
-async function protegerPaginaComRedirect(paginaDestino = 'area-cliente.html') {
-    const user = await verificarSessao();
+function inicializarSessao() {
+    console.log('🔐 Inicializando gestão de sessão...');
     
-    if (!user) {
-        // Guardar página que tentou aceder
-        sessionStorage.setItem('redirect_after_login', window.location.pathname);
-        
-        alert('Precisa de fazer login primeiro!');
-        window.location.href = 'login.html';
+    // Verificar se supabase existe
+    if (typeof supabase === 'undefined') {
+        console.error('❌ Supabase não está carregado!');
         return false;
     }
     
+    // Iniciar listener
+    iniciarListenerSessao();
+    
+    // Atualizar header se houver sessão
+    atualizarHeaderComSessao();
+    
+    console.log('✅ Gestão de sessão inicializada');
     return true;
 }
 
-// ============================================
-// REDIRECT APÓS LOGIN
-// ============================================
-function redirecionarAposLogin() {
-    // Ver se há página guardada
-    const redirect = sessionStorage.getItem('redirect_after_login');
-    
-    if (redirect && redirect !== '/login.html') {
-        sessionStorage.removeItem('redirect_after_login');
-        window.location.href = redirect;
-    } else {
-        window.location.href = 'area-cliente.html';
-    }
-}
+// Exportar função de inicialização
+window.inicializarSessao = inicializarSessao;
 
 // ============================================
-// INICIALIZAR SESSÃO NA PÁGINA
+// NÃO EXECUTA AUTOMATICAMENTE!
 // ============================================
-async function inicializarSessao() {
-    console.log('🔄 Inicializando gestão de sessão...');
-    
-    // Configurar listener de mudanças
-    configurarPersistenciaSessao();
-    
-    // Verificar sessão atual
-    await verificarEAtualizarSessao();
-    
-    console.log('✅ Gestão de sessão inicializada');
-}
+// As páginas devem chamar inicializarSessao() manualmente
+// quando todos os scripts estiverem carregados
 
-// ============================================
-// AUTO-INICIALIZAR
-// ============================================
-if (typeof supabase !== 'undefined') {
-    // Se supabase já está disponível, inicializar imediatamente
-    inicializarSessao();
-} else {
-    // Senão, esperar a página carregar
-    window.addEventListener('load', () => {
-        setTimeout(inicializarSessao, 500);
-    });
-}
-
-// ============================================
-// EXPORTAR FUNÇÕES
-// ============================================
-window.sessionManager = {
-    verificar: verificarEAtualizarSessao,
-    logout: fazerLogoutCompleto,
-    proteger: protegerPaginaComRedirect,
-    redirecionar: redirecionarAposLogin,
-    inicializar: inicializarSessao
-};
-
-console.log('✅ session.js carregado!');
+console.log('✅ session.js pronto (aguardando inicialização manual)');

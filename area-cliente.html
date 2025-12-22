@@ -9,7 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Configuração e Autenticação -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/session.js"></script>
+
     <script src="js/includes.js"></script>
 </head>
 <body>
@@ -19,9 +26,9 @@
     <div class="container">
         <!-- Welcome Banner -->
         <div class="welcome-banner">
-            <h1>Olá, <span id="nomeCliente">Cliente</span>!</h1>
+            <h1>Olá, <span id="userName">Cliente</span>!</h1>
             <p>Bem-vindo de volta à sua conta</p>
-            <div class="user-code" id="userCode">OLI000</div>
+            <div class="user-code" id="userCode">OLI001</div>
         </div>
 
         <!-- Dashboard Grid -->
@@ -30,24 +37,24 @@
             <div class="card pontos-card" id="pontos">
                 <div class="card-header" style="color: white;">
                     <h2 style="color: white;">Meu Cartão de Pontos</h2>
-                    <!-- <a href="#" class="card-link" style="color: var(--dourado);">Ver Histórico</a> -->
+                    <a href="#" class="card-link" style="color: var(--dourado);">Ver Histórico</a>
                 </div>
 
-                <div class="pontos-circles">
-                    <!-- Será preenchido via JS -->
+                <div class="pontos-circles" id="pontosCircles">
+                    <!-- Círculos serão gerados via JS -->
                 </div>
 
-                <div class="pontos-count">0/10 pontos</div>
+                <div class="pontos-count" id="pontosCount">0/10 pontos</div>
 
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%;"></div>
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
                 </div>
 
-                <p class="pontos-message">
+                <p class="pontos-message" id="pontosMessage">
                     Comece a acumular pontos! 🎯
                 </p>
 
-                <div class="ultima-refeicao">
+                <div class="ultima-refeicao" id="ultimaRefeicao">
                     <!-- Será preenchido via JS -->
                 </div>
 
@@ -68,7 +75,7 @@
                 <div class="card" style="margin-bottom: 2rem;">
                     <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--azul); margin-bottom: 1.5rem;">Ações Rápidas</h2>
                     <div class="cta-group-2">
-                        <a href="index.html#ementa" class="btn btn-primary">Ver Ementa</a>
+                        <button type="button" onclick="document.location='index.html#ementa'" class="btn btn-primary">Ver Ementa</button>
                     </div>
                 </div>
 
@@ -90,49 +97,211 @@
             <div class="card-header">
                 <h2>Histórico Recente</h2>
             </div>
-            <ul class="historico-list">
+            <ul class="historico-list" id="historicoList">
                 <!-- Será preenchido via JS -->
             </ul>
         </div>
     </div>
 
+    <!-- Footer -->
     <div data-include="components/footer.html"></div>
 
+    <!-- Scripts comuns -->
+    <div data-include="components/scripts.html"></div>
+    
+    <!-- Clientes.js para esta página -->
+    <script src="js/clientes.js"></script>
+
+    <!-- Scripts específicos desta página -->
     <script>
-        window.addEventListener('load', async () => {
+        // Aguardar includes carregarem
+        document.addEventListener('includesCarregados', function() {
+            console.log('✅ Scripts carregados, inicializando área do cliente...');
+            inicializarAreaCliente();
+        });
+
+        // Se já carregou
+        if (typeof verificarSessao !== 'undefined') {
+            inicializarAreaCliente();
+        }
+
+        async function inicializarAreaCliente() {
             try {
-                // Verificar se está logado
-                const user = await verificarSessao();
-                
-                if (!user) {
-                    alert('Precisa de fazer login primeiro!');
-                    window.location.href = 'login.html';
+                // Verificar se funções estão disponíveis
+                if (typeof protegerPagina === 'undefined') {
+                    console.error('protegerPagina não disponível, aguardando...');
+                    setTimeout(inicializarAreaCliente, 500);
                     return;
                 }
 
-                // Carregar dados do cliente
-                await carregarAreaCliente();
+                // Proteger página (só utilizadores logados)
+                const isLogado = await protegerPagina();
+                
+                if (!isLogado) {
+                    return; // protegerPagina já redireciona
+                }
 
-                // Subscrever a atualizações em tempo real (opcional)
-                await subscreverAtualizacoes();
+                // Carregar dados do cliente
+                await carregarDadosCliente();
 
             } catch (error) {
-                console.error('Erro ao carregar página:', error);
+                console.error('Erro ao inicializar área do cliente:', error);
                 alert('Erro ao carregar dados. Por favor, tente novamente.');
             }
-        });
+        }
 
-        // Botão de logout
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnLogout = document.querySelector('.btn-logout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    fazerLogout();
-                });
+        async function carregarDadosCliente() {
+            try {
+                console.log('Carregando dados do cliente...');
+
+                // Verificar se função está disponível
+                if (typeof buscarMeusDados === 'undefined') {
+                    console.error('buscarMeusDados não disponível');
+                    return;
+                }
+
+                // Buscar dados
+                const resultado = await buscarMeusDados();
+
+                if (!resultado.sucesso) {
+                    throw new Error(resultado.mensagem);
+                }
+
+                const cliente = resultado.cliente;
+                console.log('Dados do cliente:', cliente);
+
+                // Atualizar UI
+                atualizarUI(cliente);
+
+                // Buscar histórico
+                await carregarHistorico();
+
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados. Por favor, recarregue a página.');
             }
-        });
+        }
+
+        function atualizarUI(cliente) {
+            // Nome do utilizador
+            const userName = document.getElementById('userName');
+            if (userName) {
+                userName.textContent = cliente.nome + ' ' + cliente.apelido;
+            }
+
+            // Código do cliente
+            const userCode = document.getElementById('userCode');
+            if (userCode) {
+                userCode.textContent = cliente.codigo;
+            }
+
+            // Cartão de pontos
+            renderizarCartaoPontos(cliente.pontos_atuais);
+
+            // Última refeição
+            const ultimaRefeicao = document.getElementById('ultimaRefeicao');
+            if (ultimaRefeicao && cliente.data_ultima_refeicao) {
+                const data = new Date(cliente.data_ultima_refeicao).toLocaleDateString('pt-PT');
+                ultimaRefeicao.textContent = `Última refeição: ${data}`;
+            }
+
+            // Verificar se tem 10 pontos
+            if (cliente.pontos_atuais >= 10) {
+                setTimeout(() => {
+                    const quer = confirm('🎉 Parabéns! Tem um lanche grátis disponível! Quer ver?');
+                    if (quer) {
+                        window.location.href = '10-pontos-celebracao.html';
+                    }
+                }, 1000);
+            }
+        }
+
+        function renderizarCartaoPontos(pontosAtuais) {
+            // Círculos
+            const container = document.getElementById('pontosCircles');
+            if (container) {
+                container.innerHTML = '';
+                for (let i = 1; i <= 10; i++) {
+                    const circulo = document.createElement('div');
+                    circulo.className = 'ponto-circle';
+                    circulo.textContent = i;
+                    if (i <= pontosAtuais) {
+                        circulo.classList.add('filled');
+                    }
+                    container.appendChild(circulo);
+                }
+            }
+
+            // Contador
+            const contador = document.getElementById('pontosCount');
+            if (contador) {
+                contador.textContent = `${pontosAtuais}/10 pontos`;
+            }
+
+            // Barra de progresso
+            const progressBar = document.getElementById('progressFill');
+            if (progressBar) {
+                progressBar.style.width = `${pontosAtuais * 10}%`;
+            }
+
+            // Mensagem
+            const mensagem = document.getElementById('pontosMessage');
+            if (mensagem) {
+                const faltam = 10 - pontosAtuais;
+                if (pontosAtuais === 10) {
+                    mensagem.innerHTML = '<strong>🎉 Lanche grátis disponível!</strong>';
+                } else if (pontosAtuais === 0) {
+                    mensagem.innerHTML = 'Comece a acumular pontos! 🎯';
+                } else {
+                    mensagem.innerHTML = `Faltam <strong>${faltam} refeições</strong> para o seu lanche grátis! 🎯`;
+                }
+            }
+        }
+
+        async function carregarHistorico() {
+            try {
+                if (typeof buscarMeuHistorico === 'undefined') {
+                    console.log('buscarMeuHistorico não disponível');
+                    return;
+                }
+
+                const resultado = await buscarMeuHistorico(5);
+
+                if (resultado.sucesso && resultado.historico.length > 0) {
+                    renderizarHistorico(resultado.historico);
+                } else {
+                    const lista = document.getElementById('historicoList');
+                    if (lista) {
+                        lista.innerHTML = '<li style="text-align: center; padding: 2rem; color: #999;">Ainda não tem histórico</li>';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+            }
+        }
+
+        function renderizarHistorico(historico) {
+            const lista = document.getElementById('historicoList');
+            if (!lista) return;
+
+            lista.innerHTML = '';
+
+            historico.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'historico-item';
+
+                const data = new Date(item.data_criacao).toLocaleDateString('pt-PT');
+                
+                li.innerHTML = `
+                    <span class="historico-date">${data}</span>
+                    <div class="historico-desc">${item.descricao || 'Refeição'}</div>
+                    <span class="historico-points">${item.quantidade > 0 ? '+' : ''}${item.quantidade}</span>
+                `;
+
+                lista.appendChild(li);
+            });
+        }
     </script>
-      <div data-include="components/scripts.html"></div>
 </body>
 </html>
