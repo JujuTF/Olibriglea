@@ -6,7 +6,8 @@
 // Em produção, considere usar variáveis de ambiente
 
 const SUPABASE_URL = 'https://ugrigjbdtbrhyytsgbzb.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-';
+// const SUPABASE_ANON_KEY = 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVncmlnamJkdGJyaHl5dHNnYnpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNjM4NTQsImV4cCI6MjA0OTgzOTg1NH0.J7xLxgD0zGSAa9kOo15dACHpjhxUAGHSvkB5gu5PmWw';
 
 // ============================================
 // Criar cliente Supabase
@@ -28,6 +29,16 @@ if (typeof window.supabase === 'undefined') {
     console.log('✅ Supabase inicializado com sucesso!');
     console.log('URL:', SUPABASE_URL);
 }
+
+// Exportar para usar noutros ficheiros
+window.supabase = supabase;
+
+// Log de debug (remover em produção)
+console.log('✅ Supabase configurado com sucesso!');
+console.log('📍 URL:', SUPABASE_URL);
+
+
+
 
 // ============================================
 // Exportar para usar noutros ficheiros
