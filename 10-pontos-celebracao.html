@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
+    <script src="js/includes.js"></script>
 </head>
 <body>
     <!-- Elegant Background Pattern -->
@@ -32,21 +32,7 @@
 
     <div class="celebration-card">
         <!-- Header -->
-        <div class="celebration-header">
-            <!-- Decorative corners -->
-            <svg class="corner-ornament top-left" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,0 Q30,20 0,50 Q20,30 50,0 Z" fill="white"/>
-                <circle cx="25" cy="25" r="8" fill="white" opacity="0.6"/>
-            </svg>
-            <svg class="corner-ornament top-right" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0,0 Q30,20 0,50 Q20,30 50,0 Z" fill="white"/>
-                <circle cx="25" cy="25" r="8" fill="white" opacity="0.6"/>
-            </svg>
-
-            <div class="celebration-icon">🏆</div>
-            <h1>Lanche Grátis Disponível!</h1>
-            <p>Parabéns! Completou o seu cartão de pontos</p>
-        </div>
+        <div data-include="components/header.html"></div>
 
         <!-- Body -->
         <div class="celebration-body">
@@ -111,5 +97,6 @@
             <a href="area-cliente.html" class="btn-voltar">Voltar à Minha Conta</a>
         </div>
     </div>
+    <div data-include="components/scripts.html"></div>
 </body>
 </html>

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
+    <script src="js/includes.js"></script>
 </head>
 <body>
     <!-- Navegação -->
@@ -34,12 +34,7 @@
     </nav>
 
     <!-- Page Header -->
-    <section class="page-header">
-        <div class="container">
-            <h1>Contactos</h1>
-            <p>Visite-nos ou entre em contacto</p>
-        </div>
-    </section>
+<div data-include="components/header.html"></div>
 
     <!-- Contact Content -->
     <section class="contact-section">
@@ -103,32 +98,8 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Café de Rua</h3>
-                    <p>O seu café de confiança desde 2024</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Contactos</h3>
-                    <p>Email: info@cafederua.pt</p>
-                    <p>Tel: +351 XXX XXX XXX</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Siga-nos</h3>
-                    <div class="social-links">
-                        <a href="#" aria-label="Facebook">FB</a>
-                        <a href="#" aria-label="Instagram">IG</a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Café de Rua. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
+       <div data-include="components/footer.html"></div>
 
-    <script src="js/main.js"></script>
+    <div data-include="components/scripts.html"></div>
 </body>
 </html>

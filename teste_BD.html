@@ -3,351 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste Supabase - Diagnóstico</title>
-     <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script>
-        // Variável global para o cliente Supabase
-        let supabase = null;
-        
-        // Configuração
-        const SUPABASE_URL = 'https://ugrigjbdtbrhyytsgbzb.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVncmlnamJkdGJyaHl5dHNnYnpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNjM4NTQsImV4cCI6MjA0OTgzOTg1NH0.J7xLxgD0zGSAa9kOo15dACHpjhxUAGHSvkB5gu5PmWw';
-
-        // FUNÇÕES AUXILIARES
-        function mostrarResultado(elementId, html) {
-            const elemento = document.getElementById(elementId);
-            if (elemento) {
-                elemento.innerHTML = html;
-            }
-        }
-
-        function formatJson(obj) {
-            return '<pre>' + JSON.stringify(obj, null, 2) + '</pre>';
-        }
-
-        function desabilitarBotao(btnId, desabilitar = true) {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.disabled = desabilitar;
-            }
-        }
-
-        // INICIALIZAR SUPABASE
-        function inicializarSupabase() {
-            try {
-                if (typeof window.supabase === 'undefined') {
-                    throw new Error('Supabase CDN não carregou');
-                }
-                
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                
-                document.getElementById('statusConexao').innerHTML = '<span class="success">✅ Supabase carregado!</span>';
-                console.log('✅ Supabase inicializado com sucesso');
-                
-                return true;
-            } catch (error) {
-                document.getElementById('statusConexao').innerHTML = '<span class="error">❌ Erro ao carregar Supabase: ' + error.message + '</span>';
-                console.error('❌ Erro:', error);
-                return false;
-            }
-        }
-
-        // TESTE 1: Conexão
-        async function testarConexao() {
-            mostrarResultado('resultado-conexao', '⏳ Testando conexão...');
-            desabilitarBotao('btnConexao', true);
-            
-            try {
-                if (!supabase) {
-                    throw new Error('Supabase não está inicializado');
-                }
-
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('count')
-                    .limit(1);
-
-                if (error) {
-                    mostrarResultado('resultado-conexao', 
-                        `<p class="error">❌ Erro na conexão:</p>${formatJson(error)}`
-                    );
-                } else {
-                    mostrarResultado('resultado-conexao', 
-                        '<p class="success">✅ Conexão OK!</p>' + 
-                        '<p>Supabase conectado com sucesso à base de dados.</p>'
-                    );
-                }
-            } catch (err) {
-                mostrarResultado('resultado-conexao', 
-                    `<p class="error">❌ Erro fatal:</p><pre>${err.message}</pre>`
-                );
-            } finally {
-                desabilitarBotao('btnConexao', false);
-            }
-        }
-
-        // TESTE 2: Verificar Tabelas
-        async function verificarTabelas() {
-            mostrarResultado('resultado-tabelas', '⏳ Verificando tabelas...');
-            desabilitarBotao('btnTabelas', true);
-            
-            const tabelas = ['users', 'pontos_historico', 'backoffice_users', 'dashboard_stats'];
-            let resultados = '<h3>Tabelas encontradas:</h3>';
-            
-            for (const tabela of tabelas) {
-                try {
-                    const { data, error } = await supabase
-                        .from(tabela)
-                        .select('*')
-                        .limit(1);
-                    
-                    if (error) {
-                        resultados += `<p class="error">❌ ${tabela}: ${error.message}</p>`;
-                    } else {
-                        resultados += `<p class="success">✅ ${tabela}: OK</p>`;
-                    }
-                } catch (err) {
-                    resultados += `<p class="error">❌ ${tabela}: ${err.message}</p>`;
-                }
-            }
-            
-            mostrarResultado('resultado-tabelas', resultados);
-            desabilitarBotao('btnTabelas', false);
-        }
-
-        // TESTE 3: Registo
-        async function testarRegisto() {
-            mostrarResultado('resultado-registo', '⏳ Criando conta...');
-            desabilitarBotao('btnRegisto', true);
-            
-            const formData = {
-                nome: document.getElementById('regNome').value,
-                apelido: document.getElementById('regApelido').value,
-                email: document.getElementById('regEmail').value,
-                telefone: document.getElementById('regTelefone').value,
-                password: document.getElementById('regPassword').value
-            };
-
-            // Validações
-            if (!formData.email.includes('@') || !formData.email.includes('.')) {
-                mostrarResultado('resultado-registo', 
-                    '<p class="error">❌ Email inválido! Use um email real (ex: teste@exemplo.com)</p>'
-                );
-                desabilitarBotao('btnRegisto', false);
-                return;
-            }
-
-            if (formData.password.length < 6) {
-                mostrarResultado('resultado-registo', 
-                    '<p class="error">❌ Password deve ter pelo menos 6 caracteres!</p>'
-                );
-                desabilitarBotao('btnRegisto', false);
-                return;
-            }
-
-            try {
-                // Passo 1: Criar autenticação
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: formData.email.trim().toLowerCase(),
-                    password: formData.password
-                });
-
-                if (authError) throw authError;
-
-                if (!authData.user) {
-                    throw new Error('Utilizador não criado');
-                }
-
-                console.log('✅ Auth criado:', authData.user.id);
-
-                // Passo 2: Criar perfil
-                const { data: userData, error: userError } = await supabase
-                    .from('users')
-                    .insert({
-                        id: authData.user.id,
-                        nome: formData.nome.trim(),
-                        apelido: formData.apelido.trim(),
-                        email: formData.email.trim().toLowerCase(),
-                        telefone: formData.telefone.replace(/\s/g, ''),
-                        newsletter: false
-                    })
-                    .select()
-                    .single();
-
-                if (userError) throw userError;
-
-                console.log('✅ Perfil criado:', userData);
-
-                mostrarResultado('resultado-registo', 
-                    '<p class="success">✅ Registo bem-sucedido!</p>' +
-                    `<p><strong>Código gerado:</strong> ${userData.codigo}</p>` +
-                    `<p><strong>ID:</strong> ${userData.id}</p>` +
-                    '<p class="info">💡 Pode usar este email e password para fazer login no teste 4</p>'
-                );
-
-                // Auto-preencher login
-                document.getElementById('loginEmail').value = formData.email;
-                document.getElementById('loginPassword').value = formData.password;
-
-            } catch (error) {
-                console.error('Erro no registo:', error);
-                
-                let mensagem = error.message;
-                if (mensagem.includes('already registered')) {
-                    mensagem = 'Este email já está registado. Use outro email ou faça login.';
-                }
-                
-                mostrarResultado('resultado-registo', 
-                    `<p class="error">❌ Erro no registo:</p>` +
-                    `<p>${mensagem}</p>` +
-                    formatJson(error)
-                );
-            } finally {
-                desabilitarBotao('btnRegisto', false);
-            }
-        }
-
-        // TESTE 4: Login
-        async function testarLogin() {
-            mostrarResultado('resultado-login', '⏳ Fazendo login...');
-            desabilitarBotao('btnLogin', true);
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email.trim().toLowerCase(),
-                    password: password
-                });
-
-                if (error) throw error;
-
-                console.log('✅ Login bem-sucedido');
-
-                mostrarResultado('resultado-login', 
-                    '<p class="success">✅ Login bem-sucedido!</p>' +
-                    `<p><strong>Email:</strong> ${data.user.email}</p>` +
-                    `<p><strong>ID:</strong> ${data.user.id}</p>` +
-                    '<p class="info">💡 Agora pode testar as outras funcionalidades</p>'
-                );
-
-            } catch (error) {
-                console.error('Erro no login:', error);
-                mostrarResultado('resultado-login', 
-                    `<p class="error">❌ Erro no login:</p>` +
-                    `<p>${error.message}</p>` +
-                    '<p class="warning">⚠️ Certifique-se que já criou uma conta no teste 3</p>'
-                );
-            } finally {
-                desabilitarBotao('btnLogin', false);
-            }
-        }
-
-        // TESTE 5: Busca
-        async function testarBusca() {
-            mostrarResultado('resultado-busca', '⏳ Buscando clientes...');
-            desabilitarBotao('btnBusca', true);
-            
-            const termo = document.getElementById('buscaTermo').value;
-
-            try {
-                // Buscar por código
-                let { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .ilike('codigo', `%${termo}%`);
-
-                if (error) throw error;
-
-                // Se não encontrou por código, buscar por nome
-                if (!data || data.length === 0) {
-                    const resultado = await supabase
-                        .from('users')
-                        .select('*')
-                        .or(`nome.ilike.%${termo}%,apelido.ilike.%${termo}%`);
-                    
-                    data = resultado.data;
-                    error = resultado.error;
-                }
-
-                if (error) throw error;
-
-                if (data.length === 0) {
-                    mostrarResultado('resultado-busca', 
-                        '<p class="error">❌ Nenhum cliente encontrado</p>' +
-                        '<p class="warning">⚠️ Certifique-se que criou um cliente no teste 3</p>'
-                    );
-                } else {
-                    mostrarResultado('resultado-busca', 
-                        `<p class="success">✅ ${data.length} cliente(s) encontrado(s)!</p>` +
-                        formatJson(data)
-                    );
-                }
-
-            } catch (error) {
-                console.error('Erro na busca:', error);
-                mostrarResultado('resultado-busca', 
-                    `<p class="error">❌ Erro na busca:</p>` +
-                    `<pre>${error.message}</pre>`
-                );
-            } finally {
-                desabilitarBotao('btnBusca', false);
-            }
-        }
-
-        // TESTE 6: Estatísticas
-        async function testarEstatisticas() {
-            mostrarResultado('resultado-stats', '⏳ Carregando estatísticas...');
-            desabilitarBotao('btnStats', true);
-            
-            try {
-                const { data, error } = await supabase
-                    .from('dashboard_stats')
-                    .select('*')
-                    .single();
-
-                if (error) throw error;
-
-                mostrarResultado('resultado-stats', 
-                    '<p class="success">✅ Estatísticas carregadas!</p>' +
-                    formatJson(data)
-                );
-
-            } catch (error) {
-                console.error('Erro nas stats:', error);
-                mostrarResultado('resultado-stats', 
-                    `<p class="error">❌ Erro ao carregar estatísticas:</p>` +
-                    `<pre>${error.message}</pre>` +
-                    '<p class="warning">⚠️ Esta view pode não estar criada ainda</p>'
-                );
-            } finally {
-                desabilitarBotao('btnStats', false);
-            }
-        }
-
-        // INICIALIZAR AO CARREGAR A PÁGINA
-        window.addEventListener('load', function() {
-            console.log('🔄 Página carregada, inicializando...');
-            
-            // Esperar um pouco para garantir que o Supabase CDN carregou
-            setTimeout(function() {
-                if (inicializarSupabase()) {
-                    console.log('✅ Pronto para testes!');
-                    // Auto-testar conexão
-                    testarConexao();
-                } else {
-                    console.error('❌ Falha ao inicializar Supabase');
-                }
-            }, 500);
-        });
-    </script>
+    <title>Teste Simples - Supabase</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 900px;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
             margin: 50px auto;
             padding: 20px;
             background: #f5f5f5;
@@ -356,177 +16,250 @@
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #1a1464;
-            border-bottom: 3px solid #B8860B;
-            padding-bottom: 10px;
-        }
-        .test-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: #f9f9f9;
-            border-left: 4px solid #1a1464;
-        }
-        .success {
-            color: #059669;
-            font-weight: bold;
-        }
-        .error {
-            color: #dc2626;
-            font-weight: bold;
-        }
+        h1 { color: #1a1464; }
         button {
             background: #1a1464;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 15px 30px;
             border-radius: 5px;
             cursor: pointer;
-            margin: 5px;
             font-size: 16px;
+            margin: 10px 0;
         }
-        button:hover {
-            background: #2B4C9E;
+        button:hover { background: #2B4C9E; }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
         }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+        .success { color: #059669; font-weight: bold; }
+        .error { color: #dc2626; font-weight: bold; }
         pre {
             background: #2d2d2d;
             color: #f8f8f2;
             padding: 15px;
             border-radius: 5px;
             overflow-x: auto;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-        }
-        .warning {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            border-left: 4px solid #ffc107;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .form-group {
-            margin: 15px 0;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #1a1464;
-        }
-        .loading {
-            display: inline-block;
-            margin-left: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔧 Diagnóstico Supabase - Olibriglea</h1>
+        <h1>🔧 Teste Simples Supabase</h1>
         
-        <div class="info">
-            <strong>ℹ️ Status:</strong> <span id="statusConexao">Carregando...</span>
-        </div>
-
-        <div class="warning">
-            <strong>⚠️ Importante:</strong> Use emails válidos (ex: teste@exemplo.com) e passwords com mínimo 6 caracteres.
-        </div>
-
-        <!-- Teste 1: Conexão -->
-        <div class="test-section">
-            <h2>1. Teste de Conexão</h2>
-            <button onclick="testarConexao()" id="btnConexao">Testar Conexão</button>
-            <div id="resultado-conexao"></div>
-        </div>
-
-        <!-- Teste 2: Estrutura da BD -->
-        <div class="test-section">
-            <h2>2. Verificar Estrutura da Base de Dados</h2>
-            <button onclick="verificarTabelas()" id="btnTabelas">Verificar Tabelas</button>
-            <div id="resultado-tabelas"></div>
-        </div>
-
-        <!-- Teste 3: Registo -->
-        <div class="test-section">
-            <h2>3. Teste de Registo</h2>
-            <div class="form-group">
-                <label>Nome:</label>
-                <input type="text" id="regNome" value="João">
-            </div>
-            <div class="form-group">
-                <label>Apelido:</label>
-                <input type="text" id="regApelido" value="Silva">
-            </div>
-            <div class="form-group">
-                <label>Email (válido!):</label>
-                <input type="email" id="regEmail" value="teste@exemplo.com">
-            </div>
-            <div class="form-group">
-                <label>Telefone:</label>
-                <input type="tel" id="regTelefone" value="910123456">
-            </div>
-            <div class="form-group">
-                <label>Password (min. 6 caracteres):</label>
-                <input type="password" id="regPassword" value="teste123">
-            </div>
-            <button onclick="testarRegisto()" id="btnRegisto">Testar Registo</button>
-            <div id="resultado-registo"></div>
-        </div>
-
-        <!-- Teste 4: Login -->
-        <div class="test-section">
-            <h2>4. Teste de Login</h2>
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="loginEmail" value="teste@exemplo.com">
-            </div>
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" id="loginPassword" value="teste123">
-            </div>
-            <button onclick="testarLogin()" id="btnLogin">Testar Login</button>
-            <div id="resultado-login"></div>
-        </div>
-
-        <!-- Teste 5: Buscar Cliente -->
-        <div class="test-section">
-            <h2>5. Teste de Busca de Cliente</h2>
-            <div class="form-group">
-                <label>Termo de busca (código, nome ou telefone):</label>
-                <input type="text" id="buscaTermo" value="OLI">
-            </div>
-            <button onclick="testarBusca()" id="btnBusca">Buscar Cliente</button>
-            <div id="resultado-busca"></div>
-        </div>
-
-        <!-- Teste 6: Estatísticas -->
-        <div class="test-section">
-            <h2>6. Teste de Estatísticas</h2>
-            <button onclick="testarEstatisticas()" id="btnStats">Buscar Estatísticas</button>
-            <div id="resultado-stats"></div>
-        </div>
-
+        <div id="status">⏳ Carregando...</div>
+        
+        <hr style="margin: 20px 0;">
+        
+        <h2>Teste 1: JavaScript Básico</h2>
+        <button onclick="testeJavaScript()">Clicar Aqui</button>
+        <div id="resultado1" class="result"></div>
+        
+        <h2>Teste 2: Supabase CDN</h2>
+        <button onclick="testeSupabaseCDN()">Testar CDN</button>
+        <div id="resultado2" class="result"></div>
+        
+        <h2>Teste 3: Conexão Supabase</h2>
+        <button onclick="testeConexao()">Testar Conexão</button>
+        <div id="resultado3" class="result"></div>
+        
+        <h2>Teste 4: Criar Conta (SIMPLES)</h2>
+        <input type="email" id="emailTeste" placeholder="email@exemplo.com" style="width: 100%; padding: 10px; margin: 10px 0;">
+        <input type="password" id="passwordTeste" placeholder="password123" style="width: 100%; padding: 10px; margin: 10px 0;">
+        <button onclick="testeRegisto()">Criar Conta</button>
+        <div id="resultado4" class="result"></div>
     </div>
 
-   
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        console.log('=== SCRIPT CARREGADO ===');
+        
+        // Configuração
+        const SUPABASE_URL = 'https://ugrigjbdtbrhyytsgbzb.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-';
+        
+        let supabaseClient = null;
+        
+        // TESTE 1: JavaScript básico
+        function testeJavaScript() {
+            console.log('Teste JavaScript chamado!');
+            document.getElementById('resultado1').innerHTML = '<p class="success">✅ JavaScript está funcionando!</p>';
+        }
+        
+        // TESTE 2: Verificar se Supabase CDN carregou
+        function testeSupabaseCDN() {
+            console.log('Testando Supabase CDN...');
+            
+            if (typeof window.supabase === 'undefined') {
+                document.getElementById('resultado2').innerHTML = 
+                    '<p class="error">❌ Supabase CDN NÃO carregou!</p>' +
+                    '<p>Verifique sua conexão à internet.</p>';
+                return false;
+            }
+            
+            try {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase client criado:', supabaseClient);
+                
+                document.getElementById('resultado2').innerHTML = 
+                    '<p class="success">✅ Supabase CDN carregou!</p>' +
+                    '<p>Cliente Supabase criado com sucesso.</p>';
+                return true;
+            } catch (error) {
+                document.getElementById('resultado2').innerHTML = 
+                    '<p class="error">❌ Erro ao criar cliente:</p>' +
+                    '<pre>' + error.message + '</pre>';
+                return false;
+            }
+        }
+        
+        // TESTE 3: Testar conexão com BD
+        async function testeConexao() {
+            console.log('Testando conexão...');
+            document.getElementById('resultado3').innerHTML = '<p>⏳ Testando...</p>';
+            
+            if (!supabaseClient) {
+                document.getElementById('resultado3').innerHTML = 
+                    '<p class="error">❌ Execute o Teste 2 primeiro!</p>';
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    console.error('Erro na query:', error);
+                    document.getElementById('resultado3').innerHTML = 
+                        '<p class="error">❌ Erro na conexão:</p>' +
+                        '<pre>' + JSON.stringify(error, null, 2) + '</pre>';
+                    return;
+                }
+                
+                console.log('Conexão OK! Data:', data);
+                document.getElementById('resultado3').innerHTML = 
+                    '<p class="success">✅ Conexão OK!</p>' +
+                    '<p>Conseguiu conectar à tabela users.</p>';
+                    
+            } catch (error) {
+                console.error('Erro fatal:', error);
+                document.getElementById('resultado3').innerHTML = 
+                    '<p class="error">❌ Erro fatal:</p>' +
+                    '<pre>' + error.message + '</pre>';
+            }
+        }
+        
+        // TESTE 4: Criar conta simples
+        async function testeRegisto() {
+            console.log('Testando registo...');
+            document.getElementById('resultado4').innerHTML = '<p>⏳ Criando conta...</p>';
+            
+            const email = document.getElementById('emailTeste').value;
+            const password = document.getElementById('passwordTeste').value;
+            
+            // Validações
+            if (!email || !email.includes('@')) {
+                document.getElementById('resultado4').innerHTML = 
+                    '<p class="error">❌ Email inválido!</p>';
+                return;
+            }
+            
+            if (!password || password.length < 6) {
+                document.getElementById('resultado4').innerHTML = 
+                    '<p class="error">❌ Password deve ter 6+ caracteres!</p>';
+                return;
+            }
+            
+            if (!supabaseClient) {
+                document.getElementById('resultado4').innerHTML = 
+                    '<p class="error">❌ Execute o Teste 2 primeiro!</p>';
+                return;
+            }
+            
+            try {
+                // Criar autenticação
+                console.log('Criando auth para:', email);
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
+                
+                if (authError) {
+                    console.error('Erro auth:', authError);
+                    document.getElementById('resultado4').innerHTML = 
+                        '<p class="error">❌ Erro auth:</p>' +
+                        '<pre>' + authError.message + '</pre>';
+                    return;
+                }
+                
+                console.log('Auth criado:', authData.user.id);
+                
+                // Criar perfil
+                console.log('Criando perfil...');
+                const { data: userData, error: userError } = await supabaseClient
+                    .from('users')
+                    .insert({
+                        id: authData.user.id,
+                        nome: 'Teste',
+                        apelido: 'User',
+                        email: email,
+                        telefone: '910000000',
+                        newsletter: false
+                    })
+                    .select()
+                    .single();
+                
+                if (userError) {
+                    console.error('Erro user:', userError);
+                    document.getElementById('resultado4').innerHTML = 
+                        '<p class="error">❌ Erro ao criar perfil:</p>' +
+                        '<pre>' + JSON.stringify(userError, null, 2) + '</pre>';
+                    return;
+                }
+                
+                console.log('Perfil criado:', userData);
+                document.getElementById('resultado4').innerHTML = 
+                    '<p class="success">✅ Conta criada!</p>' +
+                    '<p><strong>Código:</strong> ' + userData.codigo + '</p>' +
+                    '<pre>' + JSON.stringify(userData, null, 2) + '</pre>';
+                    
+            } catch (error) {
+                console.error('Erro fatal:', error);
+                document.getElementById('resultado4').innerHTML = 
+                    '<p class="error">❌ Erro fatal:</p>' +
+                    '<pre>' + error.message + '</pre>';
+            }
+        }
+        
+        // Auto-inicializar
+        window.addEventListener('load', function() {
+            console.log('=== PÁGINA CARREGADA ===');
+            
+            setTimeout(function() {
+                console.log('Verificando Supabase...');
+                
+                if (typeof window.supabase !== 'undefined') {
+                    document.getElementById('status').innerHTML = 
+                        '<p class="success">✅ Página carregada e Supabase disponível!</p>';
+                    
+                    // Auto-criar cliente
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('Cliente criado automaticamente');
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        '<p class="error">❌ Supabase CDN não carregou!</p>';
+                }
+            }, 1000);
+        });
+        
+        console.log('=== FIM DO SCRIPT ===');
+    </script>
 </body>
 </html>
