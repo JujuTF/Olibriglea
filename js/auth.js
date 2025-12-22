@@ -24,7 +24,6 @@ async function registarCliente(formData) {
                 apelido: formData.apelido,
                 email: formData.email,
                 telefone: formData.telefone,
-                newsletter: formData.newsletter || false
             })
             .select()
             .single();
@@ -186,7 +185,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         email: document.getElementById('email').value,
         telefone: document.getElementById('phone').value,
         password: document.getElementById('password').value,
-        newsletter: document.getElementById('newsletter').checked
     };
     
     const resultado = await registarCliente(formData);

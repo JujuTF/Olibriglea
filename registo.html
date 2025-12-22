@@ -28,11 +28,11 @@
 
         <form class="register-form" id="registerForm">
             <div class="form-row">
-                <div class="form-group">
+                <div class="">
                     <label for="firstName">Nome <span class="required">*</span></label>
                     <input type="text" id="firstName" required>
                 </div>
-                <div class="form-group">
+                <div class="">
                     <label for="lastName">Apelido <span class="required">*</span></label>
                     <input type="text" id="lastName" required>
                 </div>
@@ -59,8 +59,9 @@
                     Aceito os <a href="#">Termos e Condições</a> e a <a href="#">Política de Privacidade</a> <span class="required">*</span>
                 </label>
             </div>
+            
             <div class="cta-group-2">
-                <button type="submit" class="btn btn-primary" id="submitBtn" onclick="">Criar Conta</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Criar Conta</button>
             </div>
         </form>
 
@@ -78,7 +79,7 @@
             
             <div class="codigo-display">
                 <p>O seu código de cliente:</p>
-                <div class="codigo" id="codigoCliente">OLI001</div>
+                <div class="codigo" id="codigoCliente">OLI000</div>
             </div>
             
             <p style="font-size: 0.95rem; color: #666; height: 4rem;">
@@ -89,7 +90,6 @@
                     Ir para A Minha Conta
                 </button>
             </div>
-            
         </div>
     </div>
 
@@ -98,48 +98,53 @@
         const submitBtn = document.getElementById('submitBtn');
         const termsCheckbox = document.getElementById('terms');
 
+        // Ativar botão apenas quando aceitar termos
         termsCheckbox.addEventListener('change', function() {
             submitBtn.disabled = !this.checked;
         });
 
-        form.addEventListener('submit', function(e) {
+        // Submeter formulário
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Simulate registration
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const phone = document.getElementById('phone').value;
-
-            // // Generate random codigo
-            // const codigo = 'OLI' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
-            // document.getElementById('codigoCliente').textContent = codigo;
+            const originalText = submitBtn.textContent;
             
-            // Show success modal
-            document.getElementById('successModal').classList.add('show');
+            try {
+                // Mostrar loading
+                submitBtn.textContent = 'A criar conta...';
+                submitBtn.disabled = true;
+                
+                const formData = {
+                    nome: document.getElementById('firstName').value,
+                    apelido: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    telefone: document.getElementById('phone').value,
+                    password: document.getElementById('password').value,
+                };
+                
+                const resultado = await registarCliente(formData);
+                
+                if (resultado.sucesso) {
+                    // Mostrar código no modal
+                    document.getElementById('codigoCliente').textContent = resultado.codigo;
+                    document.getElementById('successModal').classList.add('show');
+                } else {
+                    alert(resultado.mensagem);
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = !termsCheckbox.checked;
+                }
+            } catch (error) {
+                console.error('Erro no registo:', error);
+                alert('Erro ao criar conta. Por favor, tente novamente.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = !termsCheckbox.checked;
+            }
         });
 
-        // Close modal on background click
+        // Fechar modal ao clicar no fundo
         document.getElementById('successModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('show');
-            }
-        });
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = {
-                nome: document.getElementById('firstName').value,
-                apelido: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                telefone: document.getElementById('phone').value,
-                password: document.getElementById('password').value,
-                newsletter: document.getElementById('newsletter').checked
-            };
-            const resultado = await registarCliente(formData);
-            if (resultado.sucesso) {
-                document.getElementById('codigoCliente').textContent = resultado.codigo;
-                document.getElementById('successModal').classList.add('show');
             }
         });
     </script>

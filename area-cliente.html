@@ -15,37 +15,20 @@
     <script src="js/clientes.js"></script>
 </head>
 <body>
-    <!-- <header>
-        <nav>
-            <a href="homepage-final.html" class="logo-header">
-                <div class="logo-login">
-                    <img src="/mnt/user-data/uploads/logo.jpg" alt="Olibriglea">
-                </div>
-                <span class="logo-text">Olibriglea</span>
-            </a>
-            <ul class="nav-menu">
-                <li><a href="#pontos">Pontos</a></li>
-                <li><a href="#encomendas">Encomendas</a></li>
-                <li><a href="homepage-final.html#ementa">Ementa</a></li>
-                <li><a href="login.html" class="btn-logout">Sair</a></li>
-            </ul>
-        </nav>
-    </header> -->
-
-        <!-- Header -->
+    <!-- Header -->
     <header>
         <nav>
-            <a href="#" class="logo-header">
+            <a href="index.html" class="logo-header">
                 <div class="logo-small">
-                    <img src="images\logo.jpg" alt="Olibriglea">
+                    <img src="images/logo.jpg" alt="Olibriglea">
                 </div>
                 <span class="logo-text">Olibriglea</span>
             </a>
             <ul class="nav-menu">
-                <li><a href="#ementa">Ementa</a></li>
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#contactos">Contactos</a></li>
-                <li><a href="login.html" class="btn-login-header">Sair</a></li>
+                <li><a href="index.html#ementa">Ementa</a></li>
+                <li><a href="index.html#sobre">Sobre</a></li>
+                <li><a href="index.html#contactos">Contactos</a></li>
+                <li><a href="#" class="btn-login-header btn-logout">Sair</a></li>
             </ul>
         </nav>
     </header>
@@ -53,9 +36,9 @@
     <div class="container">
         <!-- Welcome Banner -->
         <div class="welcome-banner">
-            <h1>Olá, João Silva!</h1>
+            <h1>Olá, <span id="nomeCliente">Cliente</span>!</h1>
             <p>Bem-vindo de volta à sua conta</p>
-            <div class="user-code">OLI001</div>
+            <div class="user-code" id="userCode">OLI000</div>
         </div>
 
         <!-- Dashboard Grid -->
@@ -68,30 +51,21 @@
                 </div>
 
                 <div class="pontos-circles">
-                    <div class="ponto-circle filled">1</div>
-                    <div class="ponto-circle filled">2</div>
-                    <div class="ponto-circle filled">3</div>
-                    <div class="ponto-circle filled">4</div>
-                    <div class="ponto-circle filled">5</div>
-                    <div class="ponto-circle filled">6</div>
-                    <div class="ponto-circle filled">7</div>
-                    <div class="ponto-circle">8</div>
-                    <div class="ponto-circle">9</div>
-                    <div class="ponto-circle">10</div>
+                    <!-- Será preenchido via JS -->
                 </div>
 
-                <div class="pontos-count">7/10 pontos</div>
+                <div class="pontos-count">0/10 pontos</div>
 
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: 70%;"></div>
+                    <div class="progress-fill" style="width: 0%;"></div>
                 </div>
 
                 <p class="pontos-message">
-                    Faltam <strong>3 refeições</strong> para o seu lanche grátis! 🎯
+                    Comece a acumular pontos! 🎯
                 </p>
 
                 <div class="ultima-refeicao">
-                    Última refeição: 10/12/2024
+                    <!-- Será preenchido via JS -->
                 </div>
 
                 <div class="pontos-info">
@@ -99,7 +73,7 @@
                     <ul>
                         <li>Cada refeição completa = 1 ponto</li>
                         <li>10 pontos = 1 lanche grátis</li>
-                        <li>Mostre o seu código ao balcão: <strong>OLI001</strong></li>
+                        <li>Mostre o seu código ao balcão</li>
                         <li>Os pontos nunca expiram</li>
                     </ul>
                 </div>
@@ -111,20 +85,18 @@
                 <div class="card" style="margin-bottom: 2rem;">
                     <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--azul); margin-bottom: 1.5rem;">Ações Rápidas</h2>
                     <div class="cta-group-2">
-                        <button type="button" onclick="document.location='index.html'" class="btn btn-primary">Ver Ementa</button>
-                        <!-- <button type="button" onclick="document.location='index.html'" class="btn btn-secondary">Encomenda Especial</button> -->
+                        <a href="index.html#ementa" class="btn btn-primary">Ver Ementa</a>
                     </div>
                 </div>
 
                 <!-- Encomendas -->
-                <div class="card" id="encomendas" >
+                <div class="card" id="encomendas">
                     <div class="card-header">
                         <h2>Encomendas</h2>
                     </div>
                     <div class="empty-state">
                         <div class="empty-icon">📋</div>
-                        <p>Disponivel em breve!</p>
-                        <!-- <a href="#" class="btn-primary">Fazer Encomenda</a> -->
+                        <p>Disponível em breve!</p>
                     </div>
                 </div> 
             </div>
@@ -134,43 +106,47 @@
         <div class="card">
             <div class="card-header">
                 <h2>Histórico Recente</h2>
-                <!-- <a href="#" class="card-link">Ver Tudo</a> -->
             </div>
             <ul class="historico-list">
-                <li class="historico-item">
-                    <span class="historico-date">10/12/2024</span>
-                    <div class="historico-desc">Refeição do dia</div>
-                    <span class="historico-points">+1</span>
-                </li>
-                <li class="historico-item">
-                    <span class="historico-date">08/12/2024</span>
-                    <div class="historico-desc">Francesinha</div>
-                    <span class="historico-points">+1</span>
-                </li>
-                <li class="historico-item">
-                    <span class="historico-date">05/12/2024</span>
-                    <div class="historico-desc">Caril de camarão</div>
-                    <span class="historico-points">+1</span>
-                </li>
-                <li class="historico-item">
-                    <span class="historico-date">03/12/2024</span>
-                    <div class="historico-desc">Lasanha</div>
-                    <span class="historico-points">+1</span>
-                </li>
-                <li class="historico-item">
-                    <span class="historico-date">01/12/2024</span>
-                    <div class="historico-desc">Arroz de pato</div>
-                    <span class="historico-points">+1</span>
-                </li>
+                <!-- Será preenchido via JS -->
             </ul>
         </div>
     </div>
 
-<script>
-window.addEventListener('load', async () => {
-    if (!await protegerPagina()) return;
-    await carregarAreaCliente();
-});
-</script>
+    <script>
+        window.addEventListener('load', async () => {
+            try {
+                // Verificar se está logado
+                const user = await verificarSessao();
+                
+                if (!user) {
+                    alert('Precisa de fazer login primeiro!');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Carregar dados do cliente
+                await carregarAreaCliente();
+
+                // Subscrever a atualizações em tempo real (opcional)
+                await subscreverAtualizacoes();
+
+            } catch (error) {
+                console.error('Erro ao carregar página:', error);
+                alert('Erro ao carregar dados. Por favor, tente novamente.');
+            }
+        });
+
+        // Botão de logout
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLogout = document.querySelector('.btn-logout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fazerLogout();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

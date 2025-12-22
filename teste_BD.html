@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Supabase - Olibriglea</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: #059669;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .info {
+            color: #1a1464;
+        }
+        button {
+            background: #1a1464;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #output {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Conexão Supabase</h1>
+    
+    <div class="test-box">
+        <h2>1️⃣ Verificar Biblioteca Supabase</h2>
+        <p id="checkLibrary">A verificar...</p>
+    </div>
+
+    <div class="test-box">
+        <h2>2️⃣ Verificar Cliente Supabase</h2>
+        <p id="checkClient">A verificar...</p>
+    </div>
+
+    <div class="test-box">
+        <h2>3️⃣ Testar Conexão</h2>
+        <button onclick="testarConexao()">Testar Conexão</button>
+        <p id="checkConnection">Clique no botão para testar</p>
+    </div>
+
+    <div class="test-box">
+        <h2>4️⃣ Testar Registo</h2>
+        <input type="email" id="testEmail" placeholder="email@teste.com" value="teste@olibriglea.pt">
+        <input type="password" id="testPassword" placeholder="password123" value="password123">
+        <button onclick="testarRegisto()">Testar Registo</button>
+        <p id="checkRegister">Preencha os campos e clique no botão</p>
+    </div>
+
+    <div class="test-box">
+        <h2>5️⃣ Testar Login</h2>
+        <button onclick="testarLogin()">Testar Login (com dados acima)</button>
+        <p id="checkLogin">Clique no botão para testar</p>
+    </div>
+
+    <div class="test-box">
+        <h2>📋 Output Detalhado</h2>
+        <button onclick="limparOutput()">Limpar</button>
+        <div id="output"></div>
+    </div>
+
+    <!-- Carregar Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Carregar Config -->
+    <script src="js/config.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            output.innerHTML += `[${timestamp}] ${prefix} ${msg}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function limparOutput() {
+            output.innerHTML = '';
+        }
+
+        // Teste 1: Verificar se biblioteca foi carregada
+        window.addEventListener('load', () => {
+            const checkLib = document.getElementById('checkLibrary');
+            
+            if (typeof window.supabase !== 'undefined') {
+                checkLib.innerHTML = '<span class="success">✅ Biblioteca carregada com sucesso!</span>';
+                log('Biblioteca Supabase carregada', 'success');
+            } else {
+                checkLib.innerHTML = '<span class="error">❌ Biblioteca NÃO carregada!</span>';
+                log('ERRO: Biblioteca Supabase não encontrada', 'error');
+            }
+
+            // Teste 2: Verificar se cliente foi criado
+            setTimeout(() => {
+                const checkClient = document.getElementById('checkClient');
+                
+                if (window.supabase && window.supabase.auth) {
+                    checkClient.innerHTML = '<span class="success">✅ Cliente Supabase criado!</span>';
+                    log('Cliente Supabase inicializado', 'success');
+                    log(`URL: ${window.supabase.supabaseUrl}`, 'info');
+                } else {
+                    checkClient.innerHTML = '<span class="error">❌ Cliente NÃO criado!</span>';
+                    log('ERRO: Cliente Supabase não inicializado', 'error');
+                }
+            }, 100);
+        });
+
+        // Teste 3: Testar conexão
+        async function testarConexao() {
+            const checkConn = document.getElementById('checkConnection');
+            checkConn.innerHTML = '⏳ A testar conexão...';
+            log('Iniciando teste de conexão...');
+
+            try {
+                const { data, error } = await window.supabase.auth.getSession();
+                
+                if (error) throw error;
+
+                checkConn.innerHTML = '<span class="success">✅ Conexão estabelecida!</span>';
+                log('Conexão com Supabase OK', 'success');
+                log(`Sessão atual: ${data.session ? 'Logado' : 'Não logado'}`, 'info');
+                
+            } catch (error) {
+                checkConn.innerHTML = '<span class="error">❌ Erro na conexão</span>';
+                log(`ERRO na conexão: ${error.message}`, 'error');
+            }
+        }
+
+        // Teste 4: Testar registo
+        async function testarRegisto() {
+            const checkReg = document.getElementById('checkRegister');
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            if (!email || !password) {
+                alert('Preencha email e password!');
+                return;
+            }
+
+            checkReg.innerHTML = '⏳ A criar conta...';
+            log(`Tentando criar conta: ${email}`);
+
+            try {
+                const { data, error } = await window.supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                checkReg.innerHTML = '<span class="success">✅ Conta criada com sucesso!</span>';
+                log('Conta criada com sucesso!', 'success');
+                log(`User ID: ${data.user?.id}`, 'info');
+                log(`Email: ${data.user?.email}`, 'info');
+                
+            } catch (error) {
+                checkReg.innerHTML = `<span class="error">❌ Erro: ${error.message}</span>`;
+                log(`ERRO ao criar conta: ${error.message}`, 'error');
+            }
+        }
+
+        // Teste 5: Testar login
+        async function testarLogin() {
+            const checkLogin = document.getElementById('checkLogin');
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            if (!email || !password) {
+                alert('Preencha email e password!');
+                return;
+            }
+
+            checkLogin.innerHTML = '⏳ A fazer login...';
+            log(`Tentando fazer login: ${email}`);
+
+            try {
+                const { data, error } = await window.supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                checkLogin.innerHTML = '<span class="success">✅ Login bem-sucedido!</span>';
+                log('Login realizado com sucesso!', 'success');
+                log(`User ID: ${data.user?.id}`, 'info');
+                log(`Email: ${data.user?.email}`, 'info');
+                
+            } catch (error) {
+                checkLogin.innerHTML = `<span class="error">❌ Erro: ${error.message}</span>`;
+                log(`ERRO no login: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

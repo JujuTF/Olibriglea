@@ -1,41 +1,38 @@
 // ============================================
-// 📁 ESTRUTURA DE PASTAS RECOMENDADA
+// 📁 config.js - Configuração do Supabase
 // ============================================
 
-/*
-olibriglea/
-│
-├── index.html                  (Homepage)
-├── login.html
-├── registo.html
-├── area-cliente.html
-├── backoffice-pontos.html
-│
-├── css/
-│   └── styles.css              (se quiseres separar CSS)
-│
-├── js/
-│   ├── config.js               ← Configuração Supabase
-│   ├── auth.js                 ← Login, registo, logout
-│   ├── clientes.js             ← Funções de clientes
-│   ├── pontos.js               ← Adicionar/resgatar pontos
-│   └── backoffice.js           ← Funções do backoffice
-│
-└── package.json                (se usares npm)
-*/
-
-// ============================================
-// 📄 config.js - Configuração do Supabase
-// ============================================
-
-// IMPORTANTE: Nunca committes as tuas chaves reais no GitHub!
-// Usa variáveis de ambiente em produção
+// ⚠️ IMPORTANTE: Estas são as suas credenciais Supabase
+// Em produção, considere usar variáveis de ambiente
 
 const SUPABASE_URL = 'https://ugrigjbdtbrhyytsgbzb.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-';
 
+// ============================================
 // Criar cliente Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ============================================
 
+// Verificar se a biblioteca Supabase foi carregada
+if (typeof window.supabase === 'undefined') {
+    console.error('❌ ERRO: Biblioteca Supabase não foi carregada!');
+    console.error('Certifique-se que tem esta tag ANTES do config.js:');
+    console.error('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
+} else {
+    // Criar o cliente Supabase usando o método correto
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Tornar disponível globalmente
+    window.supabase = supabase;
+    
+    console.log('✅ Supabase inicializado com sucesso!');
+    console.log('URL:', SUPABASE_URL);
+}
+
+// ============================================
 // Exportar para usar noutros ficheiros
-window.supabase = supabase;
+// ============================================
+
+// Nota: Como estamos a usar <script> tags no HTML,
+// o supabase já está disponível em window.supabase
+// e pode ser usado em qualquer ficheiro JS carregado depois

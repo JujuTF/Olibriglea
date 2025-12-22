@@ -19,7 +19,7 @@
         <nav>
             <div class="logo-backoffice">
                 <div class="logo-small">
-                    <img src="/mnt/user-data/uploads/logo.jpg" alt="Olibriglea">
+                    <img src="images/logo.jpg" alt="Olibriglea">
                 </div>
                 <div>
                     <span class="logo-text">Olibriglea</span>
@@ -33,8 +33,8 @@
                 <li><a href="#">Relatórios</a></li>
             </ul>
             <div class="user-info">
-                <span>Olá, Brigite</span>
-                <div class="user-avatar">B</div>
+                <span id="nomeStaff">Staff</span>
+                <div class="user-avatar">S</div>
             </div>
         </nav>
     </header>
@@ -45,22 +45,22 @@
             <div class="stat-card">
                 <div class="stat-icon blue">🍽️</div>
                 <div class="stat-info">
-                    <h3>8</h3>
-                    <p>Encomendas Hoje</p>
+                    <h3 id="statRefeicoes">0</h3>
+                    <p>Refeições Hoje</p>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon gold">⭐</div>
                 <div class="stat-info">
-                    <h3>15</h3>
-                    <p>Pontos Dados Hoje</p>
+                    <h3 id="statPontos">0</h3>
+                    <p>Pontos no Sistema</p>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon green">👥</div>
                 <div class="stat-info">
-                    <h3>3</h3>
-                    <p>Clientes Próximos (9-10 pts)</p>
+                    <h3 id="statProximos">0</h3>
+                    <p>Clientes Próximos (8-10 pts)</p>
                 </div>
             </div>
         </div>
@@ -69,114 +69,21 @@
         <div class="search-card">
             <h2>Gestão de Pontos</h2>
             <div class="search-form">
-                <input type="text" class="search-input" id="searchInput" placeholder="Código, nome ou telemóvel..." value="OLI001">
-                <button class="btn-search" onclick="searchCliente()">Pesquisar</button>
+                <input type="text" class="search-input" id="searchInput" placeholder="Código, nome ou telemóvel...">
+                <button class="btn-search">Pesquisar</button>
             </div>
         </div>
 
         <!-- Result -->
-        <div class="result-card" id="resultCard">
-            <h3>Resultado da Pesquisa</h3>
-            <div class="cliente-info-card">
-                <div class="cliente-header">
-                    <div class="cliente-details">
-                        <div class="cliente-codigo">OLI001</div>
-                        <h4>João Silva</h4>
-                        <ul class="cliente-contatos">
-                            <li>📞 910 123 456</li>
-                            <li>✉️ joao.silva@email.com</li>
-                        </ul>
-                        <div class="cliente-desde">Cliente desde: 15/10/2024</div>
-                    </div>
-                </div>
-
-                <div class="pontos-display-bo">
-                    <h5>Pontos Atuais:</h5>
-                    <div class="pontos-circles-bo">
-                        <div class="ponto-circle-bo filled">1</div>
-                        <div class="ponto-circle-bo filled">2</div>
-                        <div class="ponto-circle-bo filled">3</div>
-                        <div class="ponto-circle-bo filled">4</div>
-                        <div class="ponto-circle-bo filled">5</div>
-                        <div class="ponto-circle-bo filled">6</div>
-                        <div class="ponto-circle-bo filled">7</div>
-                        <div class="ponto-circle-bo">8</div>
-                        <div class="ponto-circle-bo">9</div>
-                        <div class="ponto-circle-bo">10</div>
-                    </div>
-                    <div class="pontos-text">7/10 pontos</div>
-                    <div class="ultima-refeicao">Última refeição: 10/12/2024</div>
-                </div>
-
-                <div class="actions-row">
-                    <button class="btn btn-add" onclick="adicionarPonto()">➕ Adicionar Ponto</button>
-                    <a href="#" class="btn btn-secondary">📋 Ver Histórico</a>
-                </div>
-            </div>
+        <div class="result-card" id="resultCard" style="display: none;">
+            <!-- Será preenchido via JS -->
         </div>
 
         <!-- Clientes Próximos -->
         <div class="proximos-card">
             <h3>Clientes Próximos do Resgate</h3>
-            
-            <div class="cliente-item">
-                <div class="cliente-item-info">
-                    <div class="cliente-item-nome">Ana Costa</div>
-                    <div class="cliente-item-codigo">OLI015</div>
-                </div>
-                <div class="pontos-mini-display">
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini"></div>
-                </div>
-                <div class="pontos-count-display">9/10</div>
-            </div>
-
-            <div class="cliente-item">
-                <div class="cliente-item-info">
-                    <div class="cliente-item-nome">Pedro Silva</div>
-                    <div class="cliente-item-codigo">OLI023</div>
-                </div>
-                <div class="pontos-mini-display">
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini"></div>
-                    <div class="ponto-mini"></div>
-                </div>
-                <div class="pontos-count-display">8/10</div>
-            </div>
-
-            <div class="cliente-item">
-                <div class="cliente-item-info">
-                    <div class="cliente-item-nome">Maria Santos</div>
-                    <div class="cliente-item-codigo">OLI008</div>
-                </div>
-                <div class="pontos-mini-display">
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini filled"></div>
-                    <div class="ponto-mini"></div>
-                    <div class="ponto-mini"></div>
-                </div>
-                <div class="pontos-count-display">8/10</div>
+            <div id="listaClientesProximos">
+                <!-- Será preenchido via JS -->
             </div>
         </div>
     </div>
@@ -188,16 +95,11 @@
                 <h3>Adicionar Ponto</h3>
             </div>
             <div class="modal-body">
-                <p><strong>Cliente:</strong> OLI001 - João Silva</p>
-                <p><strong>Pontos atuais:</strong> 7/10</p>
-                <div class="info-box-modal">
-                    Tem a certeza que quer adicionar <strong>1 ponto</strong> a este cliente?<br><br>
-                    <strong>Após adicionar:</strong> 8/10 pontos
-                </div>
+                <!-- Será preenchido via JS -->
             </div>
             <div class="modal-actions">
-                <button class="btn btn-cancel" onclick="fecharModal()">Cancelar</button>
-                <button class="btn btn-confirm" onclick="confirmarPonto()">✓ Confirmar</button>
+                <button class="btn btn-cancel">Cancelar</button>
+                <button class="btn btn-confirm">✓ Confirmar</button>
             </div>
         </div>
     </div>
@@ -210,61 +112,105 @@
                 <h3>Ponto Adicionado!</h3>
             </div>
             <div class="modal-body">
-                <p><strong>Cliente:</strong> OLI001 - João Silva</p>
-                <div class="info-box-modal">
-                    <span style="color: #999;">Pontos anteriores:</span> <strong>7/10</strong><br>
-                    <span style="color: var(--verde);">Pontos atuais:</span> <strong style="color: var(--verde);">8/10</strong>
-                </div>
-                <p style="margin-top: 1rem; color: var(--dourado); font-weight: 600;">
-                    Faltam 2 pontos para o lanche grátis!
-                </p>
+                <!-- Será preenchido via JS -->
             </div>
-            <button class="btn btn-confirm" onclick="fecharModalSucesso()" style="width: 100%;">OK</button>
+            <button class="btn btn-confirm" style="width: 100%;">OK</button>
         </div>
     </div>
 
     <script>
-        function searchCliente() {
-            console.log('Pesquisando...');
-        }
-
-        function adicionarPonto() {
-            document.getElementById('modalAdicionar').classList.add('show');
-        }
-
-        function fecharModal() {
-            document.getElementById('modalAdicionar').classList.remove('show');
-        }
-
-        function confirmarPonto() {
-            fecharModal();
-            setTimeout(() => {
-                document.getElementById('modalSucesso').classList.add('show');
-            }, 300);
-        }
-
-        function fecharModalSucesso() {
-            document.getElementById('modalSucesso').classList.remove('show');
-            location.reload();
-        }
-
-        // Close on background click
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('show');
-                }
-            });
-        });
-        
         window.addEventListener('load', async () => {
-            if (!await protegerPagina()) return;
-            carregarEstatisticas();
-            carregarClientesProximos();
+            try {
+                // Verificar se é staff
+                const user = await verificarSessao();
+                
+                if (!user) {
+                    alert('Precisa de fazer login primeiro!');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Verificar se tem acesso ao backoffice
+                const { data: staff, error } = await supabase
+                    .from('backoffice_users')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error || !staff || !staff.ativo) {
+                    alert('Acesso não autorizado');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Atualizar nome do staff
+                if (staff.nome) {
+                    document.getElementById('nomeStaff').textContent = `Olá, ${staff.nome}`;
+                    document.querySelector('.user-avatar').textContent = staff.nome.charAt(0).toUpperCase();
+                }
+
+                // Carregar dados iniciais
+                await carregarEstatisticas();
+                await carregarClientesProximos();
+
+            } catch (error) {
+                console.error('Erro ao carregar backoffice:', error);
+                alert('Erro ao carregar página. Por favor, tente novamente.');
+            }
         });
 
-        document.querySelector('.btn-search').addEventListener('click', () => {
-            executarPesquisa(document.getElementById('searchInput').value);
+        // Botão de pesquisa
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnSearch = document.querySelector('.btn-search');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (btnSearch) {
+                btnSearch.addEventListener('click', () => {
+                    const termo = searchInput.value.trim();
+                    if (termo) {
+                        executarPesquisa(termo);
+                    } else {
+                        alert('Por favor, introduza um termo de pesquisa');
+                    }
+                });
+            }
+
+            // Enter na pesquisa
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const termo = searchInput.value.trim();
+                        if (termo) {
+                            executarPesquisa(termo);
+                        }
+                    }
+                });
+            }
+
+            // Fechar modais ao clicar no fundo
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('show');
+                    }
+                });
+            });
+
+            // Botão cancelar no modal
+            const btnCancel = document.querySelector('#modalAdicionar .btn-cancel');
+            if (btnCancel) {
+                btnCancel.addEventListener('click', () => {
+                    document.getElementById('modalAdicionar').classList.remove('show');
+                });
+            }
+
+            // Botão OK no modal sucesso
+            const btnOk = document.querySelector('#modalSucesso .btn-confirm');
+            if (btnOk) {
+                btnOk.addEventListener('click', () => {
+                    fecharModalSucesso();
+                });
+            }
         });
     </script>
 </body>
