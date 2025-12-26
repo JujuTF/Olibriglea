@@ -11,7 +11,94 @@
             <li><a href="index.html#ementa">Ementa</a></li>
             <li><a href="index.html#sobre">Sobre</a></li>
             <li><a href="index.html#contactos">Contactos</a></li>
-            <li><a href="login.html" class="btn-login-header">Área de cliente</a></li>
+            <li>
+                <a href="login.html" id="btnAreaCliente" class="btn-login-header">
+                    Iniciar Sessão
+                </a>
+            </li>
         </ul>
     </nav>
 </header>
+
+<script>
+
+// ============================================
+// INICIALIZAR BOTÃO
+// ============================================
+(function() {
+    
+    const btn = document.getElementById('btnAreaCliente');
+    
+    if (!btn) {
+        return;
+    }
+    
+    
+    // ============================================
+    // ATUALIZAR TEXTO DO BOTÃO
+    // ============================================
+    async function atualizarBotao() {
+        // Aguardar Supabase estar disponível
+        let tentativas = 0;
+        while (typeof supabase === 'undefined' && tentativas < 30) {
+            await new Promise(r => setTimeout(r, 100));
+            tentativas++;
+        }
+        
+        if (typeof supabase === 'undefined') {
+            return;
+        }
+        
+        
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (user) {
+                btn.textContent = 'A Minha Conta';
+                btn.href = 'area-cliente.html';
+            } else {
+                btn.textContent = 'Iniciar Sessão';
+                btn.href = 'login.html';
+            }
+        } catch (error) {
+        }
+    }
+    
+    // ============================================
+    // EVENT LISTENER PARA CLIQUE
+    // ============================================
+    btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        try {
+            // Aguardar Supabase
+            if (typeof supabase === 'undefined') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (user) {
+                window.location.href = 'area-cliente.html';
+            } else {
+                window.location.href = 'login.html';
+            }
+        } catch (error) {
+            console.error('❌ Erro:', error);
+            window.location.href = 'login.html';
+        }
+    });
+    
+    // ============================================
+    // EXECUTAR ATUALIZAÇÃO
+    // ============================================
+    atualizarBotao();
+    
+    // Retry após 1s e 3s (garantir que funciona)
+    setTimeout(atualizarBotao, 1000);
+    setTimeout(atualizarBotao, 3000);
+    
+    
+})();
+</script>

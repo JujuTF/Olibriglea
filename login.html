@@ -70,25 +70,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        console.log('=== INÍCIO LOGIN ===');
         
         // Carregar scripts em ordem
         (async function() {
             try {
-                console.log('📦 Carregando config.js...');
                 const configResponse = await fetch('js/config.js');
                 const configCode = await configResponse.text();
                 eval(configCode);
-                console.log('✅ config.js carregado');
                 
                 // Pequeno delay
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                console.log('📦 Carregando auth.js...');
                 const authResponse = await fetch('js/auth.js');
                 const authCode = await authResponse.text();
                 eval(authCode);
-                console.log('✅ auth.js carregado');
                 
                 // Verificar se carregou
                 if (typeof supabase === 'undefined') {
@@ -99,37 +94,31 @@
                     throw new Error('❌ fazerLogin não definido');
                 }
                 
-                console.log('✅ Todos os scripts prontos!');
                 
                 // NÃO verificar sessão automaticamente
                 // Apenas configurar o formulário
                 inicializarFormulario();
                 
             } catch (error) {
-                console.error('❌ Erro ao carregar:', error);
                 alert('Erro ao carregar a página. Por favor, recarregue (F5).');
             }
         })();
 
         // Configurar formulário
         function inicializarFormulario() {
-            console.log('🔧 Configurando formulário...');
             
             const loginForm = document.getElementById('loginForm');
             
             if (!loginForm) {
-                console.error('❌ Formulário não encontrado');
                 return;
             }
             
             loginForm.addEventListener('submit', handleLogin);
-            console.log('✅ Formulário configurado');
         }
 
         // Handler do login
         async function handleLogin(e) {
             e.preventDefault();
-            console.log('🔐 Tentando fazer login...');
             
             const btnLogin = document.getElementById('btnLogin');
             const emailInput = document.getElementById('email');
@@ -143,15 +132,12 @@
                 const email = emailInput.value.trim();
                 const password = passwordInput.value;
                 
-                console.log('📧 Email:', email);
                 
                 // Fazer login
                 const resultado = await fazerLogin(email, password);
                 
-                console.log('📊 Resultado:', resultado);
                 
                 if (resultado.sucesso) {
-                    console.log('✅ Login bem-sucedido!');
                     
                     // Feedback visual
                     btnLogin.textContent = '✓ Sucesso!';
@@ -159,13 +145,11 @@
                     
                     // Redirecionar após delay
                     setTimeout(() => {
-                        console.log('🔄 Redirecionando...');
                         window.location.href = 'area-cliente.html';
                     }, 800);
                     
                 } else {
                     // Erro no login
-                    console.error('❌ Erro no login:', resultado.mensagem);
                     alert(resultado.mensagem || 'Email ou password incorretos');
                     
                     btnLogin.disabled = false;
@@ -173,16 +157,12 @@
                 }
                 
             } catch (error) {
-                console.error('❌ Erro fatal:', error);
                 alert('Erro ao fazer login: ' + error.message);
                 
                 btnLogin.disabled = false;
                 btnLogin.textContent = 'Entrar';
             }
         }
-
-        // Debug
-        console.log('✅ Script principal carregado');
     </script>
 </body>
 </html>

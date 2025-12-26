@@ -100,7 +100,6 @@
     <script>
         // Aguardar includes carregarem
         document.addEventListener('includesCarregados', function() {
-            console.log('✅ Scripts carregados, inicializando registo...');
             inicializarRegisto();
         });
 
@@ -145,8 +144,6 @@
                     newsletter: false
                 };
 
-                console.log('Tentando registar:', formData.email);
-
                 // Verificar se função está disponível
                 if (typeof registarCliente === 'undefined') {
                     throw new Error('Função registarCliente não está carregada. Aguarde um momento e tente novamente.');
@@ -156,7 +153,6 @@
                 const resultado = await registarCliente(formData);
 
                 if (resultado.sucesso) {
-                    console.log('✅ Registo bem-sucedido!');
                     
                     // Mostrar modal com código
                     document.getElementById('codigoCliente').textContent = resultado.codigo;
@@ -170,7 +166,6 @@
                 }
 
             } catch (error) {
-                console.error('Erro no registo:', error);
                 alert(error.message || 'Erro ao criar conta. Tente novamente.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Criar Conta';

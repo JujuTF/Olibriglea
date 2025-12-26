@@ -249,7 +249,6 @@ async function subscreverAtualizacoes() {
                 filter: `id=eq.${user.id}`
             },
             (payload) => {
-                console.log('Dados atualizados!', payload);
                 // Recarregar dados
                 carregarAreaCliente();
             }

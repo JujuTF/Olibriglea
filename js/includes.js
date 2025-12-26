@@ -1,5 +1,5 @@
 // ============================================
-// 📦 includes.js - Sistema de Includes HTML
+// 📦 includes.js - Sistema de Includes HTML (CORRIGIDO)
 // ============================================
 
 /*
@@ -9,6 +9,8 @@
     USO:
     <div data-include="components/header.html"></div>
     <div data-include="components/footer.html"></div>
+    
+    CORREÇÃO: Agora executa scripts dentro dos ficheiros incluídos!
 */
 
 // ============================================
@@ -30,9 +32,13 @@ async function carregarInclude(elemento) {
         }
         
         const html = await resposta.text();
+        
+        // Inserir HTML
         elemento.innerHTML = html;
         
-        console.log(`✅ Carregado: ${arquivo}`);
+        // IMPORTANTE: Executar scripts manualmente
+        // porque innerHTML não executa <script> tags
+        executarScripts(elemento);
         
     } catch (erro) {
         console.error(`❌ Erro ao carregar ${arquivo}:`, erro);
@@ -41,26 +47,44 @@ async function carregarInclude(elemento) {
 }
 
 // ============================================
+// EXECUTAR SCRIPTS DO HTML INCLUÍDO
+// ============================================
+function executarScripts(elemento) {
+    const scripts = elemento.querySelectorAll('script');
+    
+    scripts.forEach((scriptAntigo, index) => {
+        // Criar novo script (os antigos não executam)
+        const scriptNovo = document.createElement('script');
+        
+        // Copiar atributos (src, type, etc.)
+        Array.from(scriptAntigo.attributes).forEach(attr => {
+            scriptNovo.setAttribute(attr.name, attr.value);
+        });
+        
+        // Copiar código inline
+        scriptNovo.textContent = scriptAntigo.textContent;
+        
+        // Substituir script antigo pelo novo
+        scriptAntigo.parentNode.replaceChild(scriptNovo, scriptAntigo);
+    });
+}
+
+// ============================================
 // PROCESSAR TODOS OS INCLUDES
 // ============================================
 async function processarIncludes() {
-    console.log('📦 Processando includes...');
     
     const elementos = document.querySelectorAll('[data-include]');
     
     if (elementos.length === 0) {
-        console.log('ℹ️ Nenhum include encontrado');
         return;
     }
-    
-    console.log(`📦 Encontrados ${elementos.length} includes`);
     
     // Carregar todos em paralelo
     await Promise.all(
         Array.from(elementos).map(elemento => carregarInclude(elemento))
     );
     
-    console.log('✅ Todos os includes processados!');
     
     // Disparar evento customizado
     document.dispatchEvent(new Event('includesCarregados'));
@@ -85,5 +109,3 @@ window.includes = {
     processar: processarIncludes,
     carregar: carregarInclude
 };
-
-console.log('✅ includes.js carregado!');

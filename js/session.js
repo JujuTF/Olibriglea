@@ -5,8 +5,6 @@
 // IMPORTANTE: Este ficheiro apenas DEFINE funções
 // NÃO executa nada automaticamente ao carregar
 
-console.log('📦 session.js carregado');
-
 // ============================================
 // VERIFICAR SESSÃO ATUAL
 // ============================================
@@ -40,7 +38,6 @@ async function atualizarHeaderComSessao() {
         const user = await verificarSessaoAtual();
         
         if (!user) {
-            console.log('Nenhum utilizador logado');
             return;
         }
 
@@ -63,8 +60,6 @@ async function atualizarHeaderComSessao() {
             const primeiroNome = userData.nome;
             btnLogin.textContent = `Olá, ${primeiroNome}`;
             btnLogin.href = 'area-cliente.html';
-            
-            console.log('✅ Header atualizado com sessão');
         }
 
     } catch (error) {
@@ -82,16 +77,13 @@ function iniciarListenerSessao() {
     }
 
     supabase.auth.onAuthStateChange((event, session) => {
-        console.log('📡 Mudança de autenticação:', event);
         
         switch (event) {
             case 'SIGNED_IN':
-                console.log('✅ Utilizador fez login');
                 atualizarHeaderComSessao();
                 break;
                 
             case 'SIGNED_OUT':
-                console.log('👋 Utilizador fez logout');
                 // Recarregar página para limpar estado
                 if (window.location.pathname !== '/index.html' && 
                     window.location.pathname !== '/') {
@@ -100,7 +92,6 @@ function iniciarListenerSessao() {
                 break;
                 
             case 'TOKEN_REFRESHED':
-                console.log('🔄 Token atualizado');
                 break;
         }
     });
@@ -142,8 +133,6 @@ const sessionManager = {
             const { error } = await supabase.auth.signOut();
             
             if (error) throw error;
-            
-            console.log('✅ Logout bem-sucedido');
             window.location.href = 'index.html';
             
         } catch (error) {
@@ -160,7 +149,6 @@ window.sessionManager = sessionManager;
 // FUNÇÃO DE INICIALIZAÇÃO (CHAMADA MANUALMENTE)
 // ============================================
 function inicializarSessao() {
-    console.log('🔐 Inicializando gestão de sessão...');
     
     // Verificar se supabase existe
     if (typeof supabase === 'undefined') {
@@ -173,8 +161,6 @@ function inicializarSessao() {
     
     // Atualizar header se houver sessão
     atualizarHeaderComSessao();
-    
-    console.log('✅ Gestão de sessão inicializada');
     return true;
 }
 
@@ -186,5 +172,3 @@ window.inicializarSessao = inicializarSessao;
 // ============================================
 // As páginas devem chamar inicializarSessao() manualmente
 // quando todos os scripts estiverem carregados
-
-console.log('✅ session.js pronto (aguardando inicialização manual)');

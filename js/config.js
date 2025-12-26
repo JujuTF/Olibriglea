@@ -25,19 +25,10 @@ if (typeof window.supabase === 'undefined') {
     
     // Tornar disponível globalmente
     window.supabase = supabase;
-    
-    console.log('✅ Supabase inicializado com sucesso!');
-    console.log('URL:', SUPABASE_URL);
 }
 
 // Exportar para usar noutros ficheiros
 window.supabase = supabase;
-
-// Log de debug (remover em produção)
-console.log('✅ Supabase configurado com sucesso!');
-console.log('📍 URL:', SUPABASE_URL);
-
-
 
 
 // ============================================

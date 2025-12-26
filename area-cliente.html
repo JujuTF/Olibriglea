@@ -9,15 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <!-- Supabase -->
+    
+    <!-- Sistema de includes -->
+    <script src="js/includes.js"></script>
+    
+    <!-- Scripts necessários (ORDEM IMPORTANTE) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Configuração e Autenticação -->
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/session.js"></script>
-
-    <script src="js/includes.js"></script>
+    <script src="js/clientes.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -106,34 +107,36 @@
     <!-- Footer -->
     <div data-include="components/footer.html"></div>
 
-    <!-- Scripts comuns -->
-    <div data-include="components/scripts.html"></div>
-    
-    <!-- Clientes.js para esta página -->
-    <script src="js/clientes.js"></script>
-
-    <!-- Scripts específicos desta página -->
+    <!-- Scripts de inicialização -->
     <script>
-        // Aguardar includes carregarem
-        document.addEventListener('includesCarregados', function() {
-            console.log('✅ Scripts carregados, inicializando área do cliente...');
-            inicializarAreaCliente();
-        });
-
-        // Se já carregou
-        if (typeof verificarSessao !== 'undefined') {
-            inicializarAreaCliente();
+        
+        // ============================================
+        // AGUARDAR SCRIPTS ESTAREM DISPONÍVEIS
+        // ============================================
+        async function aguardarScripts() {
+            let tentativas = 0;
+            
+            while (tentativas < 50) {
+                // Verificar se todas as funções necessárias existem
+                if (typeof supabase !== 'undefined' && 
+                    typeof protegerPagina !== 'undefined' && 
+                    typeof buscarMeusDados !== 'undefined') {
+                    return true;
+                }
+                
+                await new Promise(r => setTimeout(r, 100));
+                tentativas++;
+            }
+            
+            return false;
         }
-
+        
+        // ============================================
+        // INICIALIZAR ÁREA DO CLIENTE
+        // ============================================
         async function inicializarAreaCliente() {
             try {
-                // Verificar se funções estão disponíveis
-                if (typeof protegerPagina === 'undefined') {
-                    console.error('protegerPagina não disponível, aguardando...');
-                    setTimeout(inicializarAreaCliente, 500);
-                    return;
-                }
-
+                
                 // Proteger página (só utilizadores logados)
                 const isLogado = await protegerPagina();
                 
@@ -141,24 +144,20 @@
                     return; // protegerPagina já redireciona
                 }
 
+                
                 // Carregar dados do cliente
                 await carregarDadosCliente();
 
             } catch (error) {
-                console.error('Erro ao inicializar área do cliente:', error);
                 alert('Erro ao carregar dados. Por favor, tente novamente.');
             }
         }
 
+        // ============================================
+        // CARREGAR DADOS DO CLIENTE
+        // ============================================
         async function carregarDadosCliente() {
             try {
-                console.log('Carregando dados do cliente...');
-
-                // Verificar se função está disponível
-                if (typeof buscarMeusDados === 'undefined') {
-                    console.error('buscarMeusDados não disponível');
-                    return;
-                }
 
                 // Buscar dados
                 const resultado = await buscarMeusDados();
@@ -168,8 +167,6 @@
                 }
 
                 const cliente = resultado.cliente;
-                console.log('Dados do cliente:', cliente);
-
                 // Atualizar UI
                 atualizarUI(cliente);
 
@@ -177,12 +174,15 @@
                 await carregarHistorico();
 
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
                 alert('Erro ao carregar dados. Por favor, recarregue a página.');
             }
         }
 
+        // ============================================
+        // ATUALIZAR UI
+        // ============================================
         function atualizarUI(cliente) {
+            
             // Nome do utilizador
             const userName = document.getElementById('userName');
             if (userName) {
@@ -214,8 +214,12 @@
                     }
                 }, 1000);
             }
+            
         }
 
+        // ============================================
+        // RENDERIZAR CARTÃO DE PONTOS
+        // ============================================
         function renderizarCartaoPontos(pontosAtuais) {
             // Círculos
             const container = document.getElementById('pontosCircles');
@@ -258,13 +262,11 @@
             }
         }
 
+        // ============================================
+        // CARREGAR HISTÓRICO
+        // ============================================
         async function carregarHistorico() {
             try {
-                if (typeof buscarMeuHistorico === 'undefined') {
-                    console.log('buscarMeuHistorico não disponível');
-                    return;
-                }
-
                 const resultado = await buscarMeuHistorico(5);
 
                 if (resultado.sucesso && resultado.historico.length > 0) {
@@ -277,10 +279,12 @@
                 }
 
             } catch (error) {
-                console.error('Erro ao carregar histórico:', error);
             }
         }
 
+        // ============================================
+        // RENDERIZAR HISTÓRICO
+        // ============================================
         function renderizarHistorico(historico) {
             const lista = document.getElementById('historicoList');
             if (!lista) return;
@@ -302,6 +306,28 @@
                 lista.appendChild(li);
             });
         }
+        
+        // ============================================
+        // EXECUTAR QUANDO PÁGINA CARREGAR
+        // ============================================
+        window.addEventListener('load', async function() {
+            
+            const prontos = await aguardarScripts();
+            
+            if (!prontos) {
+                alert('Erro ao carregar scripts. Por favor, recarregue a página (F5).');
+                return;
+            }
+            
+            await inicializarAreaCliente();
+        });
+        
+        // Sinalizar que scripts desta página estão prontos
+        setTimeout(function() {
+            if (typeof supabase !== 'undefined') {
+                window.scriptsCarregados = true;
+            }
+        }, 1000);
     </script>
 </body>
 </html>
