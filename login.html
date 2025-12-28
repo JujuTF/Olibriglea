@@ -9,18 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <!-- Supabase -->
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Configuração e Autenticação -->
     <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/session.js"></script>
 </head>
 <body class="form-page">
     <div class="azulejo-bg"></div>
 
-    <div class="feature-tile register-container">
+    <div class="login-container">
         <div class="login-header">
             <a href="index.html" class="back-btn">←</a>
             <div class="logo-login">
@@ -66,103 +62,86 @@
         </div>
     </div>
 
-    <!-- APENAS Supabase CDN - SEM outros scripts automáticos -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
+        console.log('🔐 Página de login unificada carregada');
         
-        // Carregar scripts em ordem
-        (async function() {
-            try {
-                const configResponse = await fetch('js/config.js');
-                const configCode = await configResponse.text();
-                eval(configCode);
-                
-                // Pequeno delay
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                const authResponse = await fetch('js/auth.js');
-                const authCode = await authResponse.text();
-                eval(authCode);
-                
-                // Verificar se carregou
-                if (typeof supabase === 'undefined') {
-                    throw new Error('❌ Supabase não inicializou');
-                }
-                
-                if (typeof fazerLogin === 'undefined') {
-                    throw new Error('❌ fazerLogin não definido');
-                }
-                
-                
-                // NÃO verificar sessão automaticamente
-                // Apenas configurar o formulário
-                inicializarFormulario();
-                
-            } catch (error) {
-                alert('Erro ao carregar a página. Por favor, recarregue (F5).');
-            }
-        })();
-
-        // Configurar formulário
-        function inicializarFormulario() {
-            
-            const loginForm = document.getElementById('loginForm');
-            
-            if (!loginForm) {
-                return;
-            }
-            
-            loginForm.addEventListener('submit', handleLogin);
-        }
-
-        // Handler do login
-        async function handleLogin(e) {
+        const form = document.getElementById('loginForm');
+        const btnLogin = document.getElementById('btnLogin');
+        
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const btnLogin = document.getElementById('btnLogin');
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            
-            // Desabilitar botão
             btnLogin.disabled = true;
             btnLogin.textContent = 'Entrando...';
             
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
             try {
-                const email = emailInput.value.trim();
-                const password = passwordInput.value;
+                console.log('🔑 Tentando login:', email);
                 
+                // 1. Fazer login no Supabase
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
                 
-                // Fazer login
-                const resultado = await fazerLogin(email, password);
-                
-                
-                if (resultado.sucesso) {
-                    
-                    // Feedback visual
-                    btnLogin.textContent = '✓ Sucesso!';
-                    btnLogin.style.background = '#059669';
-                    
-                    // Redirecionar após delay
-                    setTimeout(() => {
-                        window.location.href = 'area-cliente.html';
-                    }, 800);
-                    
-                } else {
-                    // Erro no login
-                    alert(resultado.mensagem || 'Email ou password incorretos');
-                    
-                    btnLogin.disabled = false;
-                    btnLogin.textContent = 'Entrar';
+                if (authError) {
+                    console.error('❌ Erro auth:', authError);
+                    throw new Error('Email ou password incorretos');
                 }
                 
+                console.log('✅ Autenticação OK');
+                
+                // 2. Verificar se é STAFF (backoffice)
+                console.log('🔍 Verificando se é staff...', authData.user.id);
+                
+                const { data: staffData, error: staffError } = await supabase
+                    .from('backoffice_users')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .maybeSingle();
+                
+                console.log('📊 Resultado staff:', staffData);
+                console.log('📊 Erro staff:', staffError);
+                
+                // 3. Se for STAFF → Redirecionar para backoffice
+                if (staffData && staffData.ativo) {
+                    console.log('✅ Staff detectado:', staffData.nome);
+                    console.log('→ Redirecionando para backoffice...');
+                    
+                    btnLogin.textContent = '✓ Bem-vindo, ' + staffData.nome + '!';
+                    btnLogin.style.background = '#059669';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'backoffice-pontos.html';
+                    }, 800);
+                    return;
+                }
+                
+                console.log('ℹ️ Não é staff, redirecionando para área de cliente...');
+                
+                // 4. Se for CLIENTE → Redirecionar para área de cliente
+                console.log('✅ Cliente detectado');
+                console.log('→ Redirecionando para área de cliente...');
+                
+                btnLogin.textContent = '✓ Sucesso!';
+                btnLogin.style.background = '#059669';
+                
+                setTimeout(() => {
+                    window.location.href = 'area-cliente.html';
+                }, 800);
+                
             } catch (error) {
-                alert('Erro ao fazer login: ' + error.message);
+                console.error('❌ Erro:', error);
+                alert(error.message || 'Erro ao fazer login. Tente novamente.');
                 
                 btnLogin.disabled = false;
                 btnLogin.textContent = 'Entrar';
             }
-        }
+        });
+        
+        console.log('✅ Login unificado pronto');
     </script>
 </body>
 </html>
