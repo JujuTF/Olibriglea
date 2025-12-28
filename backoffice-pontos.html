@@ -9,185 +9,228 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/includes.js"></script>
 </head>
 <body>
-       <div data-include="components/header.html"></div>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo-header">
+                <div class="logo-small">
+                    <img src="images/logo.jpg" alt="Olibriglea">
+                </div>
+                <span class="logo-text">Olibriglea - Backoffice</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="#" id="nomeStaff">Staff</a></li>
+                <li><a href="#" id="btnLogout" class="btn-logout-header">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
 
     <div class="container">
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon blue">🍽️</div>
-                <div class="stat-info">
+        <!-- Loading inicial -->
+        <div id="loading" style="text-align: center; padding: 4rem;">
+            <h2>⏳ Carregando backoffice...</h2>
+            <p id="loadingStatus">Inicializando...</p>
+        </div>
+
+        <!-- Conteúdo (escondido até verificar) -->
+        <div id="content" style="display: none;">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🍽️</div>
                     <h3 id="statRefeicoes">0</h3>
                     <p>Refeições Hoje</p>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon gold">⭐</div>
-                <div class="stat-info">
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
                     <h3 id="statPontos">0</h3>
                     <p>Pontos no Sistema</p>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">👥</div>
-                <div class="stat-info">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
                     <h3 id="statProximos">0</h3>
                     <p>Clientes Próximos (8-10 pts)</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Search -->
-        <div class="search-card">
-            <h2>Gestão de Pontos</h2>
-            <div class="search-form">
-                <input type="text" class="search-input" id="searchInput" placeholder="Código, nome ou telemóvel...">
-                <button class="btn-search">Pesquisar</button>
-            </div>
-        </div>
+            <!-- Search -->
+            <div class="main-content">
+                <h2>Gestão de Pontos</h2>
+                <div class="search-form">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Código, nome ou telemóvel...">
+                    <button class="btn-search" onclick="pesquisar()">Pesquisar</button>
+                </div>
 
-        <!-- Result -->
-        <div class="result-card" id="resultCard" style="display: none;">
-            <!-- Será preenchido via JS -->
-        </div>
-
-        <!-- Clientes Próximos -->
-        <div class="proximos-card">
-            <h3>Clientes Próximos do Resgate</h3>
-            <div id="listaClientesProximos">
-                <!-- Será preenchido via JS -->
+                <!-- Result -->
+                <div id="resultCard" style="display: none; margin-top: 2rem;">
+                    <!-- Será preenchido via JS -->
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Adicionar Ponto -->
-    <div class="modal" id="modalAdicionar">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Adicionar Ponto</h3>
-            </div>
-            <div class="modal-body">
-                <!-- Será preenchido via JS -->
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-cancel">Cancelar</button>
-                <button class="btn btn-confirm">✓ Confirmar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Sucesso -->
-    <div class="modal" id="modalSucesso">
-        <div class="modal-content">
-            <div class="success-icon-modal">✓</div>
-            <div class="modal-header">
-                <h3>Ponto Adicionado!</h3>
-            </div>
-            <div class="modal-body">
-                <!-- Será preenchido via JS -->
-            </div>
-            <button class="btn btn-confirm" style="width: 100%;">OK</button>
-        </div>
-    </div>
-
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        window.addEventListener('load', async () => {
+        // ============================================
+        // AGUARDAR SUPABASE CARREGAR
+        // ============================================
+        async function aguardarSupabase() {
+            let tentativas = 0;
+            
+            while (typeof supabase === 'undefined' && tentativas < 50) {
+                await new Promise(r => setTimeout(r, 100));
+                tentativas++;
+            }
+            
+            if (typeof supabase === 'undefined') {
+                console.error('❌ Supabase não carregou!');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // ============================================
+        // ATUALIZAR STATUS DE LOADING
+        // ============================================
+        function atualizarStatus(mensagem) {
+            const status = document.getElementById('loadingStatus');
+            if (status) {
+                status.textContent = mensagem;
+            }
+           }
+        
+        // ============================================
+        // VERIFICAR ACESSO
+        // ============================================
+        async function verificarAcesso() {
             try {
-                // Verificar se é staff
-                const user = await verificarSessao();
+                atualizarStatus('Verificando login...');
                 
-                if (!user) {
-                    alert('Precisa de fazer login primeiro!');
-                    window.location.href = 'login.html';
-                    return;
+                // 1. Aguardar Supabase
+                const supabaseOK = await aguardarSupabase();
+                if (!supabaseOK) {
+                    throw new Error('Supabase não carregou. Por favor, recarregue a página.');
                 }
-
-                // Verificar se tem acesso ao backoffice
-                const { data: staff, error } = await supabase
+                
+                // 2. Carregar config
+                atualizarStatus('Carregando configuração...');
+                await new Promise(r => setTimeout(r, 500)); // Dar tempo para config.js carregar
+                
+                // 3. Verificar se está logado
+                atualizarStatus('Verificando sessão...');
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                
+                if (authError || !user) {
+                    throw new Error('Não está logado. Redirecionando para login...');
+                }
+                
+                
+                // 4. Verificar se é STAFF
+                atualizarStatus('Verificando permissões...');
+                
+                const { data: staffData, error: staffError } = await supabase
                     .from('backoffice_users')
                     .select('*')
                     .eq('id', user.id)
-                    .single();
-
-                if (error || !staff || !staff.ativo) {
-                    alert('Acesso não autorizado');
-                    window.location.href = 'index.html';
-                    return;
+                    .maybeSingle();
+                
+                if (staffError) {
+                    console.error('❌ Erro ao verificar staff:', staffError);
                 }
-
-                // Atualizar nome do staff
-                if (staff.nome) {
-                    document.getElementById('nomeStaff').textContent = `Olá, ${staff.nome}`;
-                    document.querySelector('.user-avatar').textContent = staff.nome.charAt(0).toUpperCase();
+                
+                if (!staffData) {
+                    throw new Error('Acesso não autorizado! Esta área é apenas para staff.');
                 }
-
-                // Carregar dados iniciais
-                await carregarEstatisticas();
-                await carregarClientesProximos();
-
+                
+                // 5. Verificar se está ATIVO
+                if (!staffData.ativo) {
+                    throw new Error('Conta desativada. Contacte o administrador.');
+                }
+                
+                
+                // 6. Atualizar UI
+                document.getElementById('nomeStaff').textContent = `Olá, ${staffData.nome}`;
+                
+                // 7. Mostrar conteúdo
+                atualizarStatus('Carregando dados...');
+                await new Promise(r => setTimeout(r, 300));
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                
             } catch (error) {
-                alert('Erro ao carregar página. Por favor, tente novamente.');
+                console.error('❌ Erro:', error);
+                alert(error.message);
+                
+                // Fazer logout se houver
+                try {
+                    await supabase.auth.signOut();
+                } catch (e) {
+                    
+                }
+                
+                // Redirecionar
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
             }
-        });
-
-        // Botão de pesquisa
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnSearch = document.querySelector('.btn-search');
-            const searchInput = document.getElementById('searchInput');
+        }
+        
+        // ============================================
+        // LOGOUT
+        // ============================================
+        async function fazerLogout(e) {
+            if (e) e.preventDefault();
             
-            if (btnSearch) {
-                btnSearch.addEventListener('click', () => {
-                    const termo = searchInput.value.trim();
-                    if (termo) {
-                        executarPesquisa(termo);
-                    } else {
-                        alert('Por favor, introduza um termo de pesquisa');
-                    }
-                });
+            if (!confirm('Tem a certeza que quer sair?')) {
+                return;
             }
-
-            // Enter na pesquisa
-            if (searchInput) {
-                searchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        const termo = searchInput.value.trim();
-                        if (termo) {
-                            executarPesquisa(termo);
-                        }
-                    }
-                });
+            
+            try {
+                await supabase.auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Erro no logout:', error);
+                alert('Erro ao sair. Tente novamente.');
             }
-
-            // Fechar modais ao clicar no fundo
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.classList.remove('show');
-                    }
-                });
-            });
-
-            // Botão cancelar no modal
-            const btnCancel = document.querySelector('#modalAdicionar .btn-cancel');
-            if (btnCancel) {
-                btnCancel.addEventListener('click', () => {
-                    document.getElementById('modalAdicionar').classList.remove('show');
-                });
-            }
-
-            // Botão OK no modal sucesso
-            const btnOk = document.querySelector('#modalSucesso .btn-confirm');
-            if (btnOk) {
-                btnOk.addEventListener('click', () => {
-                    fecharModalSucesso();
-                });
+        }
+        
+        // ============================================
+        // FUNÇÕES PLACEHOLDER
+        // ============================================
+        function pesquisar() {
+            const termo = document.getElementById('searchInput').value;
+            alert('Função de pesquisa em desenvolvimento!\n\nPesquisar: ' + termo);
+        }
+        
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        window.addEventListener('load', async () => {
+            await verificarAcesso();
+            
+            // Adicionar event listener ao logout
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', fazerLogout);
             }
         });
+        
+        // Executar também imediatamente (fallback)
+        setTimeout(() => {
+            if (document.getElementById('content').style.display === 'none') {
+                verificarAcesso();
+            }
+        }, 2000);
     </script>
-    <div data-include="components/scripts.html"></div>
+    
+    <!-- Carregar config.js DEPOIS do script acima -->
+    <script src="js/config.js"></script>
 </body>
 </html>

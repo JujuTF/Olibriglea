@@ -63,8 +63,6 @@
     </div>
 
     <script>
-        console.log('🔐 Página de login unificada carregada');
-        
         const form = document.getElementById('loginForm');
         const btnLogin = document.getElementById('btnLogin');
         
@@ -78,8 +76,6 @@
             const password = document.getElementById('password').value;
             
             try {
-                console.log('🔑 Tentando login:', email);
-                
                 // 1. Fazer login no Supabase
                 const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                     email: email,
@@ -91,10 +87,7 @@
                     throw new Error('Email ou password incorretos');
                 }
                 
-                console.log('✅ Autenticação OK');
-                
                 // 2. Verificar se é STAFF (backoffice)
-                console.log('🔍 Verificando se é staff...', authData.user.id);
                 
                 const { data: staffData, error: staffError } = await supabase
                     .from('backoffice_users')
@@ -102,13 +95,9 @@
                     .eq('id', authData.user.id)
                     .maybeSingle();
                 
-                console.log('📊 Resultado staff:', staffData);
-                console.log('📊 Erro staff:', staffError);
                 
                 // 3. Se for STAFF → Redirecionar para backoffice
                 if (staffData && staffData.ativo) {
-                    console.log('✅ Staff detectado:', staffData.nome);
-                    console.log('→ Redirecionando para backoffice...');
                     
                     btnLogin.textContent = '✓ Bem-vindo, ' + staffData.nome + '!';
                     btnLogin.style.background = '#059669';
@@ -119,11 +108,8 @@
                     return;
                 }
                 
-                console.log('ℹ️ Não é staff, redirecionando para área de cliente...');
                 
                 // 4. Se for CLIENTE → Redirecionar para área de cliente
-                console.log('✅ Cliente detectado');
-                console.log('→ Redirecionando para área de cliente...');
                 
                 btnLogin.textContent = '✓ Sucesso!';
                 btnLogin.style.background = '#059669';
@@ -141,7 +127,6 @@
             }
         });
         
-        console.log('✅ Login unificado pronto');
-    </script>
+      </script>
 </body>
 </html>
