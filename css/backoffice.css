@@ -1,0 +1,547 @@
+/* ====================================
+   BACKOFFICE - CLASSES ESPECÍFICAS
+   ==================================== */
+
+/* ====================================
+   ADMIN CONTAINER & HEADER
+   ==================================== */
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.admin-header {
+    background: white;
+    border-radius: 30px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 0 0 5px var(--azul),
+        0 0 0 8px white,
+        0 0 0 11px var(--dourado),
+        0 10px 30px rgba(26, 20, 100, 0.15);
+}
+
+.welcome-text {
+    color: var(--azul);
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+/* ====================================
+   STATS GRID
+   ==================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 25px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 
+        0 0 0 4px var(--azul),
+        0 0 0 7px white,
+        0 0 0 10px var(--dourado),
+        0 10px 30px rgba(26, 20, 100, 0.15);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.stat-icon.blue {
+    color: var(--azul);
+}
+
+.stat-icon.gold {
+    color: var(--dourado);
+}
+
+.stat-icon.green {
+    color: var(--verde);
+}
+
+.stat-info h3,
+.stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    color: var(--azul);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--dourado);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* ====================================
+   SEARCH CARD
+   ==================================== */
+.search-card {
+    background: white;
+    border-radius: 30px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 0 0 5px var(--azul),
+        0 0 0 8px white,
+        0 0 0 11px var(--dourado),
+        0 10px 30px rgba(26, 20, 100, 0.15);
+}
+
+.search-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: var(--azul);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: 3px solid var(--creme);
+    border-radius: 25px;
+    font-size: 1rem;
+    font-family: 'Lora', serif;
+    background: var(--creme);
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--azul);
+    background: white;
+}
+
+.btn-search {
+    padding: 1rem 2.5rem;
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-search:hover {
+    background: var(--azul-claro);
+}
+
+/* ====================================
+   RESULT CARD
+   ==================================== */
+.result-card {
+    background: white;
+    border-radius: 30px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 0 0 5px var(--azul),
+        0 0 0 8px white,
+        0 0 0 11px var(--dourado),
+        0 10px 30px rgba(26, 20, 100, 0.15);
+}
+
+.result-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--azul);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+/* ====================================
+   CLIENTE INFO CARD
+   ==================================== */
+.cliente-info-card {
+    background: var(--creme);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.cliente-header {
+    margin-bottom: 1.5rem;
+}
+
+.cliente-details {
+    margin-bottom: 1rem;
+}
+
+.cliente-codigo {
+    background: var(--azul);
+    color: var(--dourado);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+}
+
+.cliente-details h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--azul);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.cliente-contatos {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.cliente-contatos li {
+    padding: 0.25rem 0;
+    color: var(--azul);
+}
+
+.cliente-desde {
+    color: var(--azul);
+    opacity: 0.7;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* ====================================
+   PONTOS DISPLAY BACKOFFICE
+   ==================================== */
+.pontos-display-bo {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 20px;
+}
+
+.pontos-display-bo h5 {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--azul);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.pontos-section {
+    margin: 1.5rem 0;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(26, 20, 100, 0.1);
+}
+
+.pontos-header-bo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.pontos-label {
+    font-weight: 600;
+    color: var(--azul);
+    font-size: 1.1rem;
+}
+
+.pontos-total {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: var(--dourado);
+    font-weight: 700;
+}
+
+.pontos-circles-bo {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.ponto-circle-bo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+}
+
+.ponto-circle-bo.filled {
+    background: var(--dourado);
+    color: white;
+    box-shadow: 0 0 10px rgba(184, 134, 11, 0.4);
+}
+
+.ponto-circle-bo.empty {
+    background: white;
+    color: var(--azul);
+    border: 3px solid var(--azul);
+}
+
+.pontos-text {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--azul);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+/* ====================================
+   ACTIONS ROW
+   ==================================== */
+.actions-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--creme);
+    color: var(--azul);
+    border: 2px solid var(--azul);
+}
+
+.btn-secondary:hover {
+    background: var(--azul);
+    color: white;
+}
+
+/* ====================================
+   CLIENTES PRÓXIMOS
+   ==================================== */
+.proximos-card {
+    background: white;
+    border-radius: 30px;
+    padding: 2.5rem;
+    box-shadow: 
+        0 0 0 5px var(--azul),
+        0 0 0 8px white,
+        0 0 0 11px var(--dourado),
+        0 10px 30px rgba(26, 20, 100, 0.15);
+}
+
+.proximos-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--azul);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.cliente-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    background: var(--creme);
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 3px solid transparent;
+}
+
+.cliente-item:hover {
+    border-color: var(--dourado);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(26, 20, 100, 0.1);
+}
+
+.cliente-item-info {
+    flex: 1;
+}
+
+.cliente-item-nome {
+    font-weight: 600;
+    color: var(--azul);
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.cliente-item-codigo {
+    color: var(--dourado);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ====================================
+   PONTOS MINI DISPLAY
+   ==================================== */
+.pontos-mini-display {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0 1rem;
+}
+
+.ponto-mini {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(26, 20, 100, 0.2);
+    transition: all 0.3s;
+}
+
+.ponto-mini.filled {
+    background: var(--dourado);
+    box-shadow: 0 0 4px rgba(184, 134, 11, 0.6);
+}
+
+.pontos-count-display {
+    font-weight: 700;
+    color: var(--azul);
+    font-size: 1rem;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* ====================================
+   MAIN CONTENT
+   ==================================== */
+.main-content {
+    background: white;
+    border-radius: 30px;
+    padding: 2.5rem;
+    box-shadow: 
+        0 0 0 5px var(--azul),
+        0 0 0 8px white,
+        0 0 0 11px var(--dourado),
+        0 10px 30px rgba(26, 20, 100, 0.15);
+}
+
+/* ====================================
+   CLIENT CARD
+   ==================================== */
+.client-card {
+    background: var(--creme);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.client-card:hover {
+    border-color: var(--dourado);
+}
+
+.client-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.client-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--azul);
+    font-weight: 700;
+}
+
+.client-code {
+    background: var(--azul);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.client-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: var(--azul);
+}
+
+/* ====================================
+   RESPONSIVE - BACKOFFICE
+   ==================================== */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-form {
+        flex-direction: column;
+    }
+    
+    .pontos-circles-bo {
+        gap: 0.5rem;
+    }
+    
+    .ponto-circle-bo {
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+    
+    .actions-row {
+        flex-direction: column;
+    }
+    
+    .cliente-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .pontos-mini-display {
+        margin: 1rem 0;
+    }
+    
+    .pontos-count-display {
+        width: 100%;
+        text-align: left;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .search-card,
+    .result-card,
+    .proximos-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+}

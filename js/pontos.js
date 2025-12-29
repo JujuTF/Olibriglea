@@ -1,6 +1,9 @@
 // ============================================
-// ⭐ pontos.js - Gestão de Pontos (Backoffice)
+// ⭐ pontos.js - Gestão de Pontos (CORRIGIDO FINAL)
 // ============================================
+
+// NOTA: O campo 'tipo' deve ser 'adicionar' (não 'adicao')
+// Conforme o CHECK constraint: 'adicionar', 'resgatar', 'ajuste'
 
 // ============================================
 // PESQUISAR CLIENTE
@@ -28,14 +31,15 @@ async function pesquisarCliente(termo) {
 }
 
 // ============================================
-// ADICIONAR PONTO
+// ADICIONAR PONTO (CORRIGIDO FINAL)
 // ============================================
 async function adicionarPonto(userId, descricao = 'Refeição', criadoPor = 'sistema') {
     try {
         const { data, error } = await supabase.rpc('adicionar_ponto', {
             p_user_id: userId,
             p_descricao: descricao,
-            p_criado_por: criadoPor
+            p_criado_por: criadoPor,
+            p_tipo: 'adicionar' // ✅ CORRETO: 'adicionar' (não 'adicao')
         });
 
         if (error) throw error;
@@ -159,7 +163,7 @@ function renderizarClienteBackoffice(cliente) {
                 <h5>Pontos Atuais:</h5>
                 <div class="pontos-circles-bo">
                     ${Array.from({ length: 10 }, (_, i) => `
-                        <div class="ponto-circle-bo ${i < cliente.pontos_atuais ? 'filled' : ''}">
+                        <div class="ponto-circle-bo ${i < cliente.pontos_atuais ? 'filled' : 'empty'}">
                             ${i + 1}
                         </div>
                     `).join('')}
@@ -176,16 +180,13 @@ function renderizarClienteBackoffice(cliente) {
                 <button class="btn btn-add" onclick="mostrarModalAdicionarPonto('${cliente.id}', '${cliente.codigo}', '${cliente.nome_completo}', ${cliente.pontos_atuais})">
                     ➕ Adicionar Ponto
                 </button>
-                <button class="btn btn-secondary" onclick="verHistoricoCliente('${cliente.id}')">
-                    📋 Ver Histórico
-                </button>
             </div>
         </div>
     `;
 
     resultCard.style.display = 'block';
     
-    // Guardar dados do cliente no elemento para usar depois
+    // Guardar dados do cliente no elemento
     resultCard.dataset.clienteId = cliente.id;
     resultCard.dataset.clienteCodigo = cliente.codigo;
     resultCard.dataset.clienteNome = cliente.nome_completo;
@@ -257,6 +258,7 @@ async function confirmarAdicionarPonto(userId, codigo, nome, pontosAtuais) {
         mostrarModalSucesso(codigo, nome, resultado.resultado);
 
     } catch (error) {
+        console.error('Erro completo:', error);
         alert('Erro ao adicionar ponto: ' + error.message);
     }
 }
@@ -355,12 +357,13 @@ async function carregarEstatisticas() {
         const stats = resultado.stats;
 
         // Atualizar cards de estatísticas
-        const statCards = document.querySelectorAll('.stat-card');
-        if (statCards.length >= 3) {
-            statCards[0].querySelector('h3').textContent = stats.refeicoes_hoje || 0;
-            statCards[1].querySelector('h3').textContent = stats.total_pontos_sistema || 0;
-            statCards[2].querySelector('h3').textContent = stats.clientes_proximos_resgate || 0;
-        }
+        const statRefeicoes = document.getElementById('statRefeicoes');
+        const statPontos = document.getElementById('statPontos');
+        const statProximos = document.getElementById('statProximos');
+
+        if (statRefeicoes) statRefeicoes.textContent = stats.refeicoes_hoje || 0;
+        if (statPontos) statPontos.textContent = stats.total_pontos_sistema || 0;
+        if (statProximos) statProximos.textContent = stats.clientes_proximos_resgate || 0;
 
     } catch (error) {
         console.error('Erro ao carregar estatísticas:', error);
@@ -389,13 +392,15 @@ async function carregarClientesProximos() {
 // RENDERIZAR LISTA DE CLIENTES PRÓXIMOS
 // ============================================
 function renderizarClientesProximos(clientes) {
-    const container = document.querySelector('.proximos-card');
+    const container = document.getElementById('listaClientesProximos');
     if (!container) return;
 
-    const lista = container.querySelector('.cliente-item') ? 
-        container.parentElement : container;
+    container.innerHTML = '';
 
-    lista.innerHTML = '<h3>Clientes Próximos do Resgate</h3>';
+    if (clientes.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">Nenhum cliente próximo do resgate</p>';
+        return;
+    }
 
     clientes.forEach(cliente => {
         const item = document.createElement('div');
@@ -415,73 +420,8 @@ function renderizarClientesProximos(clientes) {
             <div class="pontos-count-display">${cliente.pontos_atuais}/10</div>
         `;
 
-        lista.appendChild(item);
+        container.appendChild(item);
     });
 }
 
-// ============================================
-// EXEMPLO DE USO NO HTML
-// ============================================
-
-/*
-// No backoffice-pontos.html, adicionar antes de </body>:
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/pontos.js"></script>
-<script>
-    window.addEventListener('load', async () => {
-        // Verificar se é staff
-        const user = await verificarSessao();
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        // Verificar se tem acesso ao backoffice
-        const { data: staff } = await supabase
-            .from('backoffice_users')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-        if (!staff || !staff.ativo) {
-            alert('Acesso não autorizado');
-            window.location.href = 'index.html';
-            return;
-        }
-
-        // Carregar dados iniciais
-        carregarEstatisticas();
-        carregarClientesProximos();
-    });
-
-    // Botão de pesquisa
-    document.querySelector('.btn-search').addEventListener('click', () => {
-        const termo = document.getElementById('searchInput').value;
-        executarPesquisa(termo);
-    });
-
-    // Enter na pesquisa
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            executarPesquisa(e.target.value);
-        }
-    });
-
-    // Fechar modais ao clicar no fundo
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-            }
-        });
-    });
-
-    // Botão cancelar no modal
-    document.querySelector('#modalAdicionar .btn-cancel')?.addEventListener('click', () => {
-        document.getElementById('modalAdicionar').classList.remove('show');
-    });
-</script>
-*/
+console.log('✅ pontos.js carregado (versão corrigida final)');

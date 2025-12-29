@@ -1,40 +1,51 @@
 // ============================================
-// 📁 config.js - Configuração do Supabase
+// 📁 config.js - TESTE 1: Usando ANON KEY (JWT)
 // ============================================
 
-// ⚠️ IMPORTANTE: Estas são as suas credenciais Supabase
-// Em produção, considere usar variáveis de ambiente
+console.log('📦 config.js TESTE 1 carregando...');
 
 const SUPABASE_URL = 'https://ugrigjbdtbrhyytsgbzb.supabase.co';
+// TESTE 1: Usando a ANON KEY (formato JWT)
 const SUPABASE_ANON_KEY = 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-';
-// const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVncmlnamJkdGJyaHl5dHNnYnpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNjM4NTQsImV4cCI6MjA0OTgzOTg1NH0.J7xLxgD0zGSAa9kOo15dACHpjhxUAGHSvkB5gu5PmWw';
 
-// ============================================
-// Criar cliente Supabase
-// ============================================
+console.log('🔑 Usando ANON KEY (JWT)');
+console.log('📍 URL:', SUPABASE_URL);
 
-// Verificar se a biblioteca Supabase foi carregada
 if (typeof window.supabase === 'undefined') {
-    console.error('❌ ERRO: Biblioteca Supabase não foi carregada!');
-    console.error('Certifique-se que tem esta tag ANTES do config.js:');
-    console.error('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
-} else {
-    // Criar o cliente Supabase usando o método correto
-    const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // Tornar disponível globalmente
-    window.supabase = supabase;
+    console.error('❌ Biblioteca Supabase não carregada!');
+    throw new Error('Supabase library not found');
 }
 
-// Exportar para usar noutros ficheiros
-window.supabase = supabase;
-
-
-// ============================================
-// Exportar para usar noutros ficheiros
-// ============================================
-
-// Nota: Como estamos a usar <script> tags no HTML,
-// o supabase já está disponível em window.supabase
-// e pode ser usado em qualquer ficheiro JS carregado depois
+try {
+    const { createClient } = window.supabase;
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
+        }
+    });
+    
+    window.supabase = supabase;
+    
+    console.log('✅ Supabase inicializado (TESTE 1 - ANON KEY)');
+    
+    // Teste de conexão
+    (async () => {
+        try {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error('❌ TESTE 1 FALHOU:', error.message);
+            } else {
+                console.log('✅ TESTE 1 OK - Conexão estabelecida');
+            }
+        } catch (e) {
+            console.error('❌ TESTE 1 ERRO:', e);
+        }
+    })();
+    
+} catch (error) {
+    console.error('❌ Erro TESTE 1:', error);
+    throw error;
+}

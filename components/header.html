@@ -11,138 +11,148 @@
             <li><a href="index.html#ementa">Ementa</a></li>
             <li><a href="index.html#sobre">Sobre</a></li>
             <li><a href="index.html#contactos">Contactos</a></li>
-            
-            <!-- Botões de autenticação (mudam conforme estado) -->
-            <li id="navAuthButtons">
-                <!-- Será preenchido dinamicamente -->
-                <a href="login.html" class="btn-login-header">Iniciar Sessão</a>
+            <li>
+                <a href="login.html" class="btn-login-header" id="btnLoginHeader">Área de cliente</a>
+            </li>
+            <li style="display: none;" id="liLogout">
+                <a href="#" id="btnLogout" >Sair</a>
             </li>
         </ul>
     </nav>
 </header>
 
 <script>
-
-// ============================================
-// INICIALIZAR HEADER
-// ============================================
+// Header inteligente - reconhece clientes E staff
 (function() {
+    'use strict';
     
-    const navAuthButtons = document.getElementById('navAuthButtons');
-    
-    if (!navAuthButtons) {
-        console.error('❌ Container de botões não encontrado!');
-        return;
-    }
-    
-    // ============================================
-    // ATUALIZAR BOTÕES DO HEADER
-    // ============================================
-    async function atualizarBotoesHeader() {
-        
-        // Aguardar Supabase estar disponível
-        let tentativas = 0;
-        while (typeof supabase === 'undefined' && tentativas < 30) {
-            await new Promise(r => setTimeout(r, 100));
-            tentativas++;
-        }
-        
-        if (typeof supabase === 'undefined') {
-            console.warn('⚠️ Supabase não disponível após 3s');
+    function atualizarHeader() {
+        // Verificar se supabase existe
+        if (typeof window.supabase === 'undefined' || !window.supabase) {
+            setTimeout(atualizarHeader, 500);
             return;
         }
         
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (user) {
-                
-                // Buscar nome do utilizador
-                let nomeUtilizador = 'Conta';
-                try {
-                    const { data: userData } = await supabase
-                        .from('users')
-                        .select('nome')
-                        .eq('id', user.id)
-                        .single();
-                    
-                    if (userData && userData.nome) {
-                        nomeUtilizador = userData.nome;
-                    }
-                } catch (error) {
-                }
-                
-                // LOGADO: Mostrar "A Minha Conta" + "Sair"
-                navAuthButtons.innerHTML = `
-                    <a href="area-cliente.html" class="btn-login-header">
-                        Olá, ${nomeUtilizador}
-                    </a>
-                    <a href="#" id="btnLogout" class="btn-logout-header" style="margin-left: 1rem;">
-                        Sair
-                    </a>
-                `;
-                
-                // Adicionar event listener ao botão de logout
+        if (typeof window.supabase.auth === 'undefined' || !window.supabase.auth.getUser) {
+            setTimeout(atualizarHeader, 500);
+            return;
+        }
+        
+        // Buscar sessão
+        window.supabase.auth.getUser()
+            .then(async ({ data: { user }, error }) => {
+                const btnLogin = document.getElementById('btnLoginHeader');
+                const liLogout = document.getElementById('liLogout');
                 const btnLogout = document.getElementById('btnLogout');
-                if (btnLogout) {
-                    btnLogout.addEventListener('click', handleLogout);
+                
+                if (error || !user) {
+                    // Sem sessão - mostrar botão de login
+                    if (btnLogin) {
+                        btnLogin.textContent = 'Área de cliente';
+                        btnLogin.href = 'login.html';
+                        btnLogin.parentElement.style.display = 'list-item';
+                    }
+                    if (liLogout) {
+                        liLogout.style.display = 'none';
+                    }
+                    return;
                 }
                 
-            } else {
+                // Tem sessão - verificar se é staff OU cliente
                 
-                // NÃO LOGADO: Mostrar "Iniciar Sessão"
-                navAuthButtons.innerHTML = `
-                    <a href="login.html" class="btn-login-header">
-                        Iniciar Sessão
-                    </a>
-                `;
-            }
-        } catch (error) {
-            console.error('❌ Erro ao verificar sessão:', error);
-        }
-    }
-    
-    // ============================================
-    // HANDLER DO LOGOUT
-    // ============================================
-    async function handleLogout(e) {
-        e.preventDefault();
-        
-        if (!confirm('Tem a certeza que quer sair?')) {
-            return;
-        }
-        
-        try {
-            const { error } = await supabase.auth.signOut();
-            
-            if (error) throw error;
-            
-            // Redirecionar para homepage
-            window.location.href = 'index.html';
-            
-        } catch (error) {
-            console.error('❌ Erro ao fazer logout:', error);
-            alert('Erro ao sair. Tente novamente.');
-        }
-    }
-    
-    // ============================================
-    // EXECUTAR ATUALIZAÇÃO
-    // ============================================
-    atualizarBotoesHeader();
-    
-    // Retry após 1s e 3s
-    setTimeout(atualizarBotoesHeader, 1000);
-    setTimeout(atualizarBotoesHeader, 3000);
-    
-    // Subscrever a mudanças de autenticação
-    setTimeout(() => {
-        if (typeof supabase !== 'undefined' && supabase.auth) {
-            supabase.auth.onAuthStateChange((event, session) => {
-                atualizarBotoesHeader();
+                // 1. Tentar backoffice_users primeiro
+                const { data: staffData, error: staffError } = await window.supabase
+                    .from('backoffice_users')
+                    .select('nome, ativo')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (!staffError && staffData && staffData.ativo) {
+                    // É STAFF!
+                    console.log('✅ Utilizador é staff:', staffData.nome);
+                    
+                    if (btnLogin) {
+                        btnLogin.textContent = `👤 ${staffData.nome}`;
+                        btnLogin.href = 'backoffice-pontos.html';
+                    }
+                    
+                    if (liLogout) {
+                        liLogout.style.display = 'list-item';
+                    }
+                    
+                    configurarLogout(btnLogout);
+                    return;
+                }
+                
+                // 2. Se não é staff, tentar users (cliente)
+                const { data: clienteData, error: clienteError } = await window.supabase
+                    .from('users')
+                    .select('nome')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (!clienteError && clienteData) {
+                    // É CLIENTE!
+                    console.log('✅ Utilizador é cliente:', clienteData.nome);
+                    
+                    if (btnLogin) {
+                        btnLogin.textContent = `Olá, ${clienteData.nome}`;
+                        btnLogin.href = 'area-cliente.html';
+                    }
+                    
+                    if (liLogout) {
+                        liLogout.style.display = 'list-item';
+                    }
+                    
+                    configurarLogout(btnLogout);
+                    return;
+                }
+                
+                // Se não encontrou em nenhuma tabela
+                console.log('⚠️ Utilizador logado mas sem dados');
+                if (btnLogin) {
+                    btnLogin.textContent = 'Minha Conta';
+                    btnLogin.href = 'area-cliente.html';
+                }
+                
+                if (liLogout) {
+                    liLogout.style.display = 'list-item';
+                }
+                
+                configurarLogout(btnLogout);
+            })
+            .catch(err => {
+                console.log('ℹ️ Erro ao verificar sessão:', err);
             });
-        }
-    }, 2000);
+    }
+    
+    function configurarLogout(btnLogout) {
+        if (!btnLogout) return;
+        
+        // Só configurar uma vez
+        if (btnLogout.hasAttribute('data-configured')) return;
+        
+        btnLogout.setAttribute('data-configured', 'true');
+        btnLogout.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            if (confirm('Tem a certeza que quer sair?')) {
+                try {
+                    await window.supabase.auth.signOut();
+                    console.log('✅ Logout bem-sucedido');
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('❌ Erro no logout:', error);
+                    alert('Erro ao sair. Tente novamente.');
+                }
+            }
+        });
+    }
+    
+    // Tentar atualizar várias vezes
+    setTimeout(atualizarHeader, 1000);
+    setTimeout(atualizarHeader, 2000);
+    setTimeout(atualizarHeader, 3000);
     
 })();
 </script>
