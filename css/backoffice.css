@@ -2,6 +2,14 @@
    BACKOFFICE - CLASSES ESPECÍFICAS
    ==================================== */
 
+/* Âncora de scroll invisível */
+#resultadoPesquisa {
+    position: relative;
+    top: -100px; /* Offset para não ficar atrás do header fixo */
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* ====================================
    ADMIN CONTAINER & HEADER
    ==================================== */

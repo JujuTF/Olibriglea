@@ -143,6 +143,9 @@ function renderizarClienteBackoffice(cliente) {
     if (!resultCard) return;
 
     resultCard.innerHTML = `
+        <!-- Âncora para scroll -->
+        <div id="resultadoPesquisa"></div>
+        
         <h3>Resultado da Pesquisa</h3>
         <div class="cliente-info-card">
             <div class="cliente-header">
@@ -191,6 +194,17 @@ function renderizarClienteBackoffice(cliente) {
     resultCard.dataset.clienteCodigo = cliente.codigo;
     resultCard.dataset.clienteNome = cliente.nome_completo;
     resultCard.dataset.pontosAtuais = cliente.pontos_atuais;
+
+    // ✅ SCROLL SUAVE ATÉ O RESULTADO
+    setTimeout(() => {
+        const ancora = document.getElementById('resultadoPesquisa');
+        if (ancora) {
+            ancora.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start'
+            });
+        }
+    }, 100); // Pequeno delay para garantir que o conteúdo foi renderizado
 }
 
 // ============================================
@@ -405,7 +419,17 @@ function renderizarClientesProximos(clientes) {
     clientes.forEach(cliente => {
         const item = document.createElement('div');
         item.className = 'cliente-item';
-        item.onclick = () => executarPesquisa(cliente.codigo);
+        
+        // ✅ Scroll suave ao clicar
+        item.onclick = () => {
+            // Primeiro, fazer scroll para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Depois executar pesquisa
+            setTimeout(() => {
+                executarPesquisa(cliente.codigo);
+            }, 300);
+        };
         
         item.innerHTML = `
             <div class="cliente-item-info">
@@ -423,5 +447,3 @@ function renderizarClientesProximos(clientes) {
         container.appendChild(item);
     });
 }
-
-console.log('✅ pontos.js carregado (versão corrigida final)');

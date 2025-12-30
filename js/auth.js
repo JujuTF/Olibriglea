@@ -2,14 +2,12 @@
 // 🔐 auth.js - Autenticação (VERSÃO CORRIGIDA)
 // ============================================
 
-console.log('📦 auth.js carregando...');
 
 // ============================================
 // REGISTO DE NOVO CLIENTE
 // ============================================
 async function registarCliente(formData) {
     try {
-        console.log('📝 Registando cliente:', formData.email);
         
         // Verificar se supabase existe
         if (typeof supabase === 'undefined') {
@@ -27,7 +25,6 @@ async function registarCliente(formData) {
             throw authError;
         }
 
-        console.log('✅ Conta de autenticação criada');
 
         // 2. Criar perfil na tabela users
         const { data: userData, error: userError } = await supabase
@@ -48,7 +45,6 @@ async function registarCliente(formData) {
             throw userError;
         }
 
-        console.log('✅ Perfil criado:', userData);
 
         return {
             sucesso: true,
@@ -70,7 +66,6 @@ async function registarCliente(formData) {
 // ============================================
 async function fazerLogin(email, password) {
     try {
-        console.log('🔐 Fazendo login:', email);
         
         // Verificar se supabase existe
         if (typeof supabase === 'undefined') {
@@ -86,8 +81,6 @@ async function fazerLogin(email, password) {
             console.error('❌ Erro no login:', error);
             throw error;
         }
-
-        console.log('✅ Login bem-sucedido:', data.user.email);
 
         return {
             sucesso: true,
@@ -108,7 +101,6 @@ async function fazerLogin(email, password) {
 // ============================================
 async function fazerLogout() {
     try {
-        console.log('👋 Fazendo logout...');
         
         if (typeof supabase === 'undefined') {
             throw new Error('Supabase não está inicializado');
@@ -117,8 +109,6 @@ async function fazerLogout() {
         const { error } = await supabase.auth.signOut();
         
         if (error) throw error;
-
-        console.log('✅ Logout bem-sucedido');
         window.location.href = 'index.html';
 
     } catch (error) {
@@ -145,12 +135,6 @@ async function verificarSessao() {
             return null;
         }
         
-        if (user) {
-            console.log('✅ Utilizador logado:', user.email);
-        } else {
-            console.log('ℹ️ Nenhum utilizador logado');
-        }
-        
         return user; // null se não estiver logado
 
     } catch (error) {
@@ -163,18 +147,15 @@ async function verificarSessao() {
 // PROTEGER PÁGINA (só utilizadores logados)
 // ============================================
 async function protegerPagina() {
-    console.log('🔒 Verificando acesso à página...');
     
     const user = await verificarSessao();
     
     if (!user) {
-        console.log('⛔ Acesso negado - redirecionando para login');
         alert('Precisa de fazer login primeiro!');
         window.location.href = 'login.html';
         return false;
     }
     
-    console.log('✅ Acesso permitido');
     return true;
 }
 
@@ -183,7 +164,6 @@ async function protegerPagina() {
 // ============================================
 async function recuperarPassword(email) {
     try {
-        console.log('📧 Enviando email de recuperação para:', email);
         
         if (typeof supabase === 'undefined') {
             throw new Error('Supabase não está inicializado');
@@ -214,7 +194,6 @@ async function recuperarPassword(email) {
 // ============================================
 async function redefinirPassword(novaPassword) {
     try {
-        console.log('🔑 Redefinindo password...');
         
         if (typeof supabase === 'undefined') {
             throw new Error('Supabase não está inicializado');
@@ -262,14 +241,3 @@ window.authFunctions = {
     recuperarPassword,
     redefinirPassword
 };
-
-console.log('✅ auth.js carregado e funções exportadas');
-console.log('Funções disponíveis:', {
-    registarCliente: typeof window.registarCliente,
-    fazerLogin: typeof window.fazerLogin,
-    fazerLogout: typeof window.fazerLogout,
-    verificarSessao: typeof window.verificarSessao,
-    protegerPagina: typeof window.protegerPagina,
-    recuperarPassword: typeof window.recuperarPassword,
-    redefinirPassword: typeof window.redefinirPassword
-});

@@ -51,6 +51,8 @@
 
         <!-- Result -->
         <div class="result-card" id="resultCard" style="display: none;">
+            <!-- Âncora para scroll automático -->
+            <div id="resultadoPesquisa"></div>
             <!-- Será preenchido via JS -->
         </div>
 
@@ -102,8 +104,7 @@
     <script src="js/pontos.js"></script>
 
     <script>
-        console.log('=== BACKOFFICE: Inicializando ===');
-
+       
         // Aguardar todos os scripts carregarem
         async function carregarScriptsBackoffice() {
             // Pequeno delay para garantir que tudo carregou
@@ -122,13 +123,11 @@
                 return;
             }
 
-            console.log('✅ Funções carregadas com sucesso');
             await inicializarBackoffice();
         }
 
         async function inicializarBackoffice() {
             try {
-                console.log('🔐 Verificando autenticação...');
                 
                 // Verificar se é staff
                 const user = await verificarSessao();
@@ -139,7 +138,6 @@
                     return;
                 }
 
-                console.log('👤 Utilizador autenticado:', user.email);
 
                 // Verificar se tem acesso ao backoffice
                 const { data: staff, error } = await supabase
@@ -155,16 +153,12 @@
                     return;
                 }
 
-                console.log('✅ Acesso autorizado:', staff.nome);
 
                 // Carregar dados iniciais
-                console.log('📊 Carregando estatísticas...');
                 await carregarEstatisticas();
 
-                console.log('👥 Carregando clientes próximos...');
                 await carregarClientesProximos();
 
-                console.log('✅ Backoffice inicializado com sucesso!');
 
             } catch (error) {
                 console.error('❌ Erro ao carregar backoffice:', error);
@@ -174,7 +168,7 @@
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('📄 DOM carregado');
+           
 
             // Botão de pesquisa
             const btnSearch = document.querySelector('.btn-search');
@@ -223,13 +217,11 @@
 
         // Iniciar quando a página carregar completamente
         window.addEventListener('load', () => {
-            console.log('🚀 Página carregada completamente');
             carregarScriptsBackoffice();
         });
 
         // Fallback: tentar também após includes carregarem
         document.addEventListener('includesCarregados', () => {
-            console.log('📦 Includes carregados');
             // Só iniciar se ainda não iniciou
             if (typeof carregarEstatisticas !== 'undefined' && 
                 document.getElementById('statRefeicoes').textContent === '0') {
