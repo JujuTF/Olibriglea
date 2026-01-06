@@ -11,3 +11,17 @@
 <script src="js/clientes.js"></script>
 <script src="js/pontos.js"></script>
 <script src="js/includes.js"></script>
+
+
+<script>
+    window.addEventListener('load', function() {
+        console.log('🚀 Inicializando sessão...');
+        
+        setTimeout(function() {
+            if (typeof inicializarSessao !== 'undefined') {
+                inicializarSessao();
+                console.log('✅ Sessão inicializada');
+            }
+        }, 500);
+    });
+</script>
