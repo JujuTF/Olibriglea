@@ -26,7 +26,7 @@
 @media (max-width: 767px) {
     /* Navegação Mobile */
     .nav-toggle {
-        /* display: flex; */
+        display: flex; 
         background: none;
         border: none;
     }
