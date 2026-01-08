@@ -1,43 +1,34 @@
 // ============================================
-// 📁 config.js - TESTE 1: Usando ANON KEY (JWT)
+// 📁 config.js - Configuração do Supabase (SEGURO)
 // ============================================
 
-const SUPABASE_URL = 'https://ugrigjbdtbrhyytsgbzb.supabase.co';
-// TESTE 1: Usando a ANON KEY (formato JWT)
-const SUPABASE_ANON_KEY = 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-';
+// Verificar se está em desenvolvimento ou produção
+const isDev = window.location.hostname === 'localhost' || 
+              window.location.hostname === '127.0.0.1';
 
+// Obter variáveis de ambiente (Vercel injeta automaticamente)
+const SUPABASE_URL = isDev 
+    ? 'https://ugrigjbdtbrhyytsgbzb.supabase.co'  // Dev local
+    : (window.ENV?.SUPABASE_URL || 'https://ugrigjbdtbrhyytsgbzb.supabase.co');
+
+const SUPABASE_ANON_KEY = isDev
+    ? 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-'  // Dev local
+    : (window.ENV?.SUPABASE_ANON_KEY || 'sb_publishable_-deEmuYKcp5hAgZ-cEYscg_PpoSM_o-');
+
+// ============================================
+// Criar cliente Supabase
+// ============================================
 
 if (typeof window.supabase === 'undefined') {
-    console.error('❌ Biblioteca Supabase não carregada!');
-    throw new Error('Supabase library not found');
-}
-
-try {
+    console.error('❌ ERRO: Biblioteca Supabase não foi carregada!');
+} else {
     const { createClient } = window.supabase;
-    
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: true
-        }
-    });
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     window.supabase = supabase;
     
-    // Teste de conexão
-    (async () => {
-        try {
-            const { data, error } = await supabase.auth.getSession();
-            if (error) {
-                console.error('❌ TESTE 1 FALHOU:', error.message);
-            } 
-        } catch (e) {
-            console.error('❌ TESTE 1 ERRO:', e);
-        }
-    })();
-    
-} catch (error) {
-    console.error('❌ Erro TESTE 1:', error);
-    throw error;
+    console.log('✅ Supabase inicializado');
+    console.log('🌍 Ambiente:', isDev ? 'Desenvolvimento' : 'Produção');
 }
+
+window.supabase = supabase;
