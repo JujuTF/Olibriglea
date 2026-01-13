@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ementa Semanal - Olibriglea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ementas.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+        <!-- Scripts - ORDEM CORRETA -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/includes.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/pontos.js"></script>
+    <script src="js/header-ementa-link.js"></script>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div data-include="components/header.html"></div>
+
+    <section style="padding: 8rem 2rem 4rem;">
+        <div id="ementaContent" class="ementa-container">
+            <div class="loading">Carregando ementa</div>
+        </div>
+    </section>
+
+    <div data-include="components/footer.html"></div>
+    <script src="js/ementas.js"></script>
+
+    <script>
+        // Carregar ementa ao iniciar
+        window.addEventListener('load', async () => {
+            await carregarEmentaAtual();
+        });
+
+        async function carregarEmentaAtual() {
+            try {
+                const resultado = await window.ementasFunctions.buscarEmentaAtual();
+                
+                if (!resultado.sucesso) {
+                    throw new Error(resultado.mensagem);
+                }
+
+                const container = document.getElementById('ementaContent');
+
+                if (!resultado.ementa) {
+                    container.innerHTML = `
+                        <div class="ementa-header">
+                            <h2>Ementa Semanal</h2>
+                            <p class="ementa-vazia">
+                                Ainda não temos ementa disponível para esta semana.<br>
+                                Por favor, volte mais tarde!
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar ementa
+                const html = renderizarEmenta(resultado.ementa);
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro ao carregar ementa:', error);
+                document.getElementById('ementaContent').innerHTML = `
+                    <div class="ementa-vazia">
+                        Erro ao carregar ementa. Por favor, tente novamente.
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarEmenta(ementa) {
+            const diasSemana = [
+                { nome: 'Segunda-feira', sopa: ementa.segunda_sopa, pratos: ementa.segunda_pratos },
+                { nome: 'Terça-feira', sopa: ementa.terca_sopa, pratos: ementa.terca_pratos },
+                { nome: 'Quarta-feira', sopa: ementa.quarta_sopa, pratos: ementa.quarta_pratos },
+                { nome: 'Quinta-feira', sopa: ementa.quinta_sopa, pratos: ementa.quinta_pratos },
+                { nome: 'Sexta-feira', sopa: ementa.sexta_sopa, pratos: ementa.sexta_pratos }
+            ];
+
+            let html = '';
+            
+            // Header com datas
+            const inicio = new Date(ementa.semana_inicio);
+            const fim = new Date(ementa.semana_fim);
+            html += `
+                <div class="ementa-header">
+                    <h2>Ementa Semanal</h2>
+                    <p class="ementa-periodo">
+                        ${inicio.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })} - ${fim.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                </div>
+            `;
+
+            // Dias da semana
+            diasSemana.forEach(dia => {
+                if (dia.sopa || (dia.pratos && dia.pratos.length > 0)) {
+                    html += `
+                        <div class="ementa-dia">
+                            <h3 class="dia-nome">${dia.nome}</h3>
+                            
+                            ${dia.sopa ? `
+                                <div class="ementa-item">
+                                    <strong>Sopa:</strong> ${dia.sopa}
+                                </div>
+                            ` : ''}
+                            
+                            ${dia.pratos && dia.pratos.length > 0 ? `
+                                <div class="ementa-pratos">
+                                    <ul>
+                                        ${dia.pratos.map(prato => `<li>${prato}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            });
+
+            return html;
+        }
+    </script>
+</body>
+</html>

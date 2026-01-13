@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Ementas - Olibriglea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS - Ordem correta -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/backoffice.css">
+    <link rel="stylesheet" href="css/ementas.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/includes.js"></script>
+    <script src="js/header-ementa-link.js"></script>
+</head>
+<body>
+    <div data-include="components/header.html"></div>
+
+    <div class="container">
+        <div class="admin-header">
+            <h1>Gestão de Ementas Semanais</h1>
+            <p class="welcome-text">Criar e gerir ementas semanais</p>
+        </div>
+
+        <!-- Ementa em Vigor -->
+        <div class="ementa-section-dashboard">
+            <div class="section-header-dashboard">
+                <h2>📅 Ementa em Vigor</h2>
+            </div>
+            
+            <div id="ementaEmVigor" class="ementa-card-large">
+                <div class="loading-state">
+                    <p>Carregando ementa em vigor...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Criar Nova Ementa -->
+        <div class="ementa-section-dashboard">
+            <div class="section-header-dashboard">
+                <h2>➕ Criar Nova Ementa</h2>
+            </div>
+            
+            <div class="action-card">
+                <p>Crie uma nova ementa semanal para os almoços de Segunda a Sexta-feira</p>
+                <a href="backoffice-ementa-criar.html" class="btn btn-primary">
+                    ➕ Criar Nova Ementa
+                </a>
+            </div>
+        </div>
+
+        <!-- Histórico de Ementas -->
+        <div class="ementa-section-dashboard">
+            <div class="section-header-dashboard">
+                <h2>📚 Histórico de Ementas</h2>
+            </div>
+            
+            <div id="historicoEmentas" class="historico-list-dashboard">
+                <div class="loading-state">
+                    <p>Carregando histórico...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-include="components/footer.html"></div>
+    
+    <script src="js/ementas.js"></script>
+
+    <script>
+        (async function() {
+            const scripts = ['config.js', 'auth.js', 'session.js'];
+            for (const script of scripts) {
+                const response = await fetch(`js/${script}`);
+                eval(await response.text());
+            }
+            
+            await new Promise(r => {
+                if (document.querySelector('header nav')) r();
+                else document.addEventListener('includesCarregados', r);
+            });
+            
+            await inicializarPagina();
+        })();
+
+        async function inicializarPagina() {
+            await verificarAcessoBackoffice();
+            await Promise.all([
+                carregarEmentaEmVigor(),
+                carregarHistoricoEmentas()
+            ]);
+        }
+
+        async function verificarAcessoBackoffice() {
+            const user = await verificarSessao();
+            if (!user) {
+                alert('Precisa de fazer login!');
+                window.location.href = 'login.html';
+                return;
+            }
+            const { data: staff } = await supabase.from('backoffice_users').select('*').eq('id', user.id).single();
+            if (!staff || !staff.ativo) {
+                alert('Acesso não autorizado');
+                window.location.href = 'index.html';
+            }
+        }
+
+        async function carregarEmentaEmVigor() {
+            const container = document.getElementById('ementaEmVigor');
+            
+            try {
+                const resultado = await window.ementasFunctions.buscarEmentaAtual();
+                
+                if (!resultado.sucesso || !resultado.ementa) {
+                    container.innerHTML = `
+                        <div class="empty-state-dashboard">
+                            <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;">📋</div>
+                            <h3>Nenhuma ementa publicada</h3>
+                            <p>Crie e publique uma ementa para aparecer no site</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const ementa = resultado.ementa;
+                const inicio = new Date(ementa.semana_inicio);
+                const fim = new Date(ementa.semana_fim);
+                
+                container.innerHTML = `
+                    <div class="ementa-vigor-content">
+                        <div class="ementa-vigor-header">
+                            <div>
+                                <div class="ementa-periodo-large">
+                                    ${inicio.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })} - 
+                                    ${fim.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </div>
+                                <span class="status-badge status-publicado">✓ Publicada no Site</span>
+                            </div>
+                            <a href="backoffice-ementa-detalhe.html?id=${ementa.id}" class="btn btn-primary" style="margin-right: 0;">
+                                Ver Detalhes →
+                            </a>
+                        </div>
+                        
+                        <div class="ementa-quick-preview">
+                            ${gerarPreviewDias(ementa)}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Erro:', error);
+                container.innerHTML = `<div class="error-state-dashboard"><p>Erro ao carregar ementa</p></div>`;
+            }
+        }
+
+        function gerarPreviewDias(ementa) {
+            const dias = [
+                { nome: 'Seg', sopa: ementa.segunda_sopa, pratos: ementa.segunda_pratos },
+                { nome: 'Ter', sopa: ementa.terca_sopa, pratos: ementa.terca_pratos },
+                { nome: 'Qua', sopa: ementa.quarta_sopa, pratos: ementa.quarta_pratos },
+                { nome: 'Qui', sopa: ementa.quinta_sopa, pratos: ementa.quinta_pratos },
+                { nome: 'Sex', sopa: ementa.sexta_sopa, pratos: ementa.sexta_pratos }
+            ];
+
+            return dias.map(dia => {
+                const temConteudo = dia.sopa || (dia.pratos && dia.pratos.length > 0);
+                return `
+                    <div class="dia-preview ${temConteudo ? '' : 'vazio'}">
+                        <div class="dia-nome-preview">${dia.nome}</div>
+                        ${temConteudo ? `
+                            <div class="dia-info-preview">
+                                ${dia.sopa ? `<div>🍲 ${dia.sopa}</div>` : ''}
+                                ${dia.pratos && dia.pratos.length > 0 ? `<div>🍽️ ${dia.pratos.length} prato(s)</div>` : ''}
+                            </div>
+                        ` : '<div class="sem-info">—</div>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function carregarHistoricoEmentas() {
+            const container = document.getElementById('historicoEmentas');
+            
+            try {
+                const resultado = await window.ementasFunctions.listarEmentas(10);
+                const ementas = resultado.sucesso ? resultado.ementas.filter(e => !e.publicado) : [];
+
+                if (ementas.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state-dashboard">
+                            <div style="font-size: 3rem; opacity: 0.3;">📚</div>
+                            <p>Nenhuma ementa no histórico</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = ementas.map(ementa => {
+                    const inicio = new Date(ementa.semana_inicio);
+                    const fim = new Date(ementa.semana_fim);
+                    
+                    return `
+                        <div class="historico-item-dashboard">
+                            <div class="historico-info">
+                                <div class="historico-datas">
+                                    ${inicio.toLocaleDateString('pt-PT')} - ${fim.toLocaleDateString('pt-PT')}
+                                </div>
+                                <span class="status-badge status-rascunho">📝 Rascunho</span>
+                            </div>
+                            <a href="backoffice-ementa-detalhe.html?id=${ementa.id}" class="btn-secondary-small">
+                                Ver Detalhes →
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Erro:', error);
+                container.innerHTML = `<div class="error-state-dashboard"><p>Erro ao carregar histórico</p></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Ementa - Olibriglea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/backoffice.css">
+    <link rel="stylesheet" href="css/ementas.css">
+    <link rel="stylesheet" href="css/ementas-adicional.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/includes.js"></script>
+    <script src="js/header-ementa-link.js"></script>
+</head>
+<body>
+    <div data-include="components/header.html"></div>
+
+    <div class="container">
+        <div style="margin-bottom: 2rem;">
+            <a href="backoffice-ementas.html" class="btn-back">← Voltar ao Painel</a>
+        </div>
+
+        <!-- Modo Visualização -->
+        <div id="modoVisualizacao" class="ementa-detalhe-card">
+            <div class="ementa-detalhe-header">
+                <div>
+                    <h2>Ementa Semanal</h2>
+                    <div id="periodoEmenta" class="ementa-periodo-large"></div>
+                    <div id="statusBadge" style="margin-top: 1rem;"></div>
+                </div>
+                <div class="acoes-ementa">
+                    <button type="button" class="btn-icon btn-edit" onclick="ativarModoEdicao()" title="Editar ementa">
+                        <span class="icon">✏️</span> Editar
+                    </button>
+                    <button type="button" class="btn-icon btn-publish" onclick="togglePublicacao()" id="btnPublicar" title="Publicar ementa">
+                        <span class="icon">🚀</span> <span id="btnPublicarTexto">Publicar</span>
+                    </button>
+                    <button type="button" class="btn-icon btn-download" onclick="downloadImagem()" title="Download imagem Instagram">
+                        <span class="icon">📸</span> Download
+                    </button>
+                    <button type="button" class="btn-icon btn-delete" onclick="confirmarDelete()" title="Eliminar ementa">
+                        <span class="icon">🗑️</span> Eliminar
+                    </button>
+                </div>
+            </div>
+
+            <div id="conteudoEmenta" class="ementa-dias-visualizacao"></div>
+        </div>
+
+        <!-- Modo Edição -->
+        <div id="modoEdicao" class="ementa-form" style="display: none;">
+            <h2>✏️ Editar Ementa</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data Início (Segunda-feira)</label>
+                    <input type="date" id="semanaInicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Data Fim (Sexta-feira)</label>
+                    <input type="date" id="semanaFim" required>
+                </div>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Segunda-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="segundaSopa" placeholder="Ex: Canja">
+                </div>
+                <div id="segundaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('segunda')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Terça-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="tercaSopa">
+                </div>
+                <div id="tercaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('terca')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Quarta-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="quartaSopa">
+                </div>
+                <div id="quartaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('quarta')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Quinta-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="quintaSopa">
+                </div>
+                <div id="quintaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('quinta')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Sexta-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="sextaSopa">
+                </div>
+                <div id="sextaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('sexta')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel" onclick="cancelarEdicao()">Cancelar</button>
+                <button type="button" class="btn btn-confirm" onclick="salvarEdicao()">💾 Guardar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <div data-include="components/footer.html"></div>
+    
+    <script src="js/ementas.js"></script>
+
+    <script>
+        // Configurar link "Ementa" no header
+        document.addEventListener('DOMContentLoaded', async function() {
+            setTimeout(async () => {
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    if (link.textContent.trim().toLowerCase().includes('ementa')) {
+                        link.addEventListener('click', async function(e) {
+                            e.preventDefault();
+                            if (typeof supabase !== 'undefined') {
+                                try {
+                                    const { data } = await supabase.rpc('buscar_ementa_atual');
+                                    if (data && data.length > 0) {
+                                        window.location.href = `backoffice-ementa-detalhe.html?id=${data[0].id}`;
+                                    } else {
+                                        window.location.href = 'ementa-semanal.html';
+                                    }
+                                } catch (err) {
+                                    window.location.href = 'ementa-semanal.html';
+                                }
+                            }
+                        });
+                    }
+                });
+            }, 1000);
+        });
+
+        let ementaAtual = null;
+        let ementaId = null;
+        let isStaff = false; // Flag para saber se é staff do backoffice
+
+        (async function() {
+            const scripts = ['config.js', 'auth.js', 'session.js'];
+            for (const script of scripts) {
+                const response = await fetch(`js/${script}`);
+                eval(await response.text());
+            }
+            
+            await new Promise(r => {
+                if (document.querySelector('header nav')) r();
+                else document.addEventListener('includesCarregados', r);
+            });
+            
+            // Modificar link da ementa no header
+            await configurarLinkEmenta();
+            
+            // Verificar se é staff (mas não bloquear acesso)
+            await verificarSeEStaff();
+            
+            // Carregar ementa (sempre, independente de login)
+            await carregarEmenta();
+        })();
+
+        // Configurar link "Ementa" no header
+        async function configurarLinkEmenta() {
+            try {
+                const resultado = await window.ementasFunctions.buscarEmentaAtual();
+                const links = document.querySelectorAll('.nav-menu a');
+                links.forEach(link => {
+                    const texto = link.textContent.trim().toLowerCase();
+                    if (texto === 'ementa' || texto.includes('ementa')) {
+                        if (resultado.sucesso && resultado.ementa) {
+                            link.href = `backoffice-ementa-detalhe.html?id=${resultado.ementa.id}`;
+                        } else {
+                            link.href = 'backoffice-ementas.html';
+                        }
+                    }
+                });
+            } catch (error) {
+                console.log('Não foi possível configurar link da ementa:', error);
+            }
+        }
+
+        // Verificar se utilizador é staff (mas NÃO bloquear acesso)
+        async function verificarSeEStaff() {
+            try {
+                const user = await verificarSessao();
+                
+                if (!user) {
+                    // Não está logado - modo visualização pública
+                    isStaff = false;
+                    esconderElementosBackoffice();
+                    return;
+                }
+                
+                const { data: staff } = await supabase
+                    .from('backoffice_users')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (staff && staff.ativo) {
+                    // É staff do backoffice - mostrar ações
+                    isStaff = true;
+                } else {
+                    // Está logado mas não é staff - modo visualização
+                    isStaff = false;
+                    esconderElementosBackoffice();
+                }
+            } catch (error) {
+                console.log('Utilizador não é staff, modo visualização pública');
+                isStaff = false;
+                esconderElementosBackoffice();
+            }
+        }
+
+        // Esconder elementos exclusivos do backoffice
+        function esconderElementosBackoffice() {
+            // Esconder botões de ação
+            const acoesEmenta = document.querySelector('.acoes-ementa');
+            if (acoesEmenta) {
+                acoesEmenta.style.display = 'none';
+            }
+            
+            // Esconder botão "Voltar ao Painel"
+            const btnBack = document.querySelector('.btn-back');
+            if (btnBack) {
+                btnBack.style.display = 'none';
+            }
+            
+            console.log('✅ Modo visualização pública ativado');
+        }
+
+        async function carregarEmenta() {
+            const params = new URLSearchParams(window.location.search);
+            ementaId = params.get('id');
+
+            if (!ementaId) {
+                alert('ID da ementa não fornecido');
+                window.location.href = 'backoffice-ementas.html';
+                return;
+            }
+
+            const resultado = await window.ementasFunctions.buscarEmentaPorId(ementaId);
+
+            if (!resultado.sucesso || !resultado.ementa) {
+                alert('Erro ao carregar ementa');
+                window.location.href = 'backoffice-ementas.html';
+                return;
+            }
+
+            ementaAtual = resultado.ementa;
+            renderizarVisualizacao();
+        }
+
+        function renderizarVisualizacao() {
+            const inicio = new Date(ementaAtual.semana_inicio);
+            const fim = new Date(ementaAtual.semana_fim);
+
+            document.getElementById('periodoEmenta').textContent = 
+                `${inicio.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })} - ${fim.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+            document.getElementById('statusBadge').innerHTML = `
+                <span class="status-badge ${ementaAtual.publicado ? 'status-publicado' : 'status-rascunho'}">
+                    ${ementaAtual.publicado ? '✓ Publicada' : '📝 Rascunho'}
+                </span>
+            `;
+
+            // Atualizar botão publicar com ícone E texto
+            const btnPublicar = document.getElementById('btnPublicar');
+            const btnTexto = document.getElementById('btnPublicarTexto');
+            const btnIcon = btnPublicar.querySelector('.icon');
+            
+            if (ementaAtual.publicado) {
+                btnIcon.textContent = '👁️';
+                btnTexto.textContent = 'Despublicar';
+                btnPublicar.title = 'Despublicar ementa';
+            } else {
+                btnIcon.textContent = '🚀';
+                btnTexto.textContent = 'Publicar';
+                btnPublicar.title = 'Publicar ementa';
+            }
+
+            const dias = [
+                { nome: 'Segunda-feira', sopa: ementaAtual.segunda_sopa, pratos: ementaAtual.segunda_pratos },
+                { nome: 'Terça-feira', sopa: ementaAtual.terca_sopa, pratos: ementaAtual.terca_pratos },
+                { nome: 'Quarta-feira', sopa: ementaAtual.quarta_sopa, pratos: ementaAtual.quarta_pratos },
+                { nome: 'Quinta-feira', sopa: ementaAtual.quinta_sopa, pratos: ementaAtual.quinta_pratos },
+                { nome: 'Sexta-feira', sopa: ementaAtual.sexta_sopa, pratos: ementaAtual.sexta_pratos }
+            ];
+
+            document.getElementById('conteudoEmenta').innerHTML = dias.map(dia => `
+                <div class="dia-visualizacao">
+                    <h3 class="dia-nome-vis">${dia.nome}</h3>
+                    ${dia.sopa ? `<div class="ementa-sopa-vis">🍲 ${dia.sopa}</div>` : ''}
+                    ${dia.pratos && dia.pratos.length > 0 ? `
+                        <ul class="ementa-pratos-vis">
+                            ${dia.pratos.map(p => `<li>🍽️ ${p}</li>`).join('')}
+                        </ul>
+                    ` : '<p class="sem-info-vis">Sem informação</p>'}
+                </div>
+            `).join('');
+        }
+
+        function ativarModoEdicao() {
+            if (!isStaff) {
+                alert('Apenas staff do backoffice pode editar ementas.');
+                return;
+            }
+
+            document.getElementById('semanaInicio').value = ementaAtual.semana_inicio;
+            document.getElementById('semanaFim').value = ementaAtual.semana_fim;
+
+            ['segunda', 'terca', 'quarta', 'quinta', 'sexta'].forEach(dia => {
+                document.getElementById(`${dia}Sopa`).value = ementaAtual[`${dia}_sopa`] || '';
+                const container = document.getElementById(`${dia}Pratos`);
+                container.innerHTML = '';
+                const pratos = ementaAtual[`${dia}_pratos`] || [];
+                if (pratos.length === 0) {
+                    adicionarPrato(dia);
+                } else {
+                    pratos.forEach(prato => {
+                        adicionarPrato(dia);
+                        const inputs = container.querySelectorAll('.prato-input');
+                        inputs[inputs.length - 1].value = prato;
+                    });
+                }
+            });
+
+            document.getElementById('modoVisualizacao').style.display = 'none';
+            document.getElementById('modoEdicao').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicao() {
+            document.getElementById('modoEdicao').style.display = 'none';
+            document.getElementById('modoVisualizacao').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function salvarEdicao() {
+            if (!isStaff) {
+                alert('Apenas staff do backoffice pode guardar alterações.');
+                return;
+            }
+
+            const dados = {
+                semana_inicio: document.getElementById('semanaInicio').value,
+                semana_fim: document.getElementById('semanaFim').value
+            };
+
+            ['segunda', 'terca', 'quarta', 'quinta', 'sexta'].forEach(dia => {
+                dados[`${dia}_sopa`] = document.getElementById(`${dia}Sopa`).value.trim() || null;
+                const inputs = document.getElementById(`${dia}Pratos`).querySelectorAll('.prato-input');
+                dados[`${dia}_pratos`] = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+            });
+
+            const resultado = await window.ementasFunctions.atualizarEmenta(ementaId, dados);
+
+            if (resultado.sucesso) {
+                alert('✅ Ementa atualizada!');
+                ementaAtual = resultado.ementa;
+                renderizarVisualizacao();
+                cancelarEdicao();
+            } else {
+                alert('Erro: ' + resultado.mensagem);
+            }
+        }
+
+        async function togglePublicacao() {
+            if (!isStaff) {
+                alert('Apenas staff do backoffice pode publicar/despublicar ementas.');
+                return;
+            }
+
+            const acao = ementaAtual.publicado ? 'despublicar' : 'publicar';
+            if (!confirm(`Tem a certeza que quer ${acao} esta ementa?`)) return;
+
+            const resultado = await window.ementasFunctions.togglePublicacaoEmenta(ementaId, !ementaAtual.publicado);
+
+            if (resultado.sucesso) {
+                alert(resultado.mensagem);
+                ementaAtual = resultado.ementa;
+                renderizarVisualizacao();
+            } else {
+                alert('Erro: ' + resultado.mensagem);
+            }
+        }
+
+        async function downloadImagem() {
+            if (!isStaff) {
+                alert('Apenas staff do backoffice pode fazer download de imagens.');
+                return;
+            }
+            await window.ementasFunctions.downloadImagemInstagram(ementaAtual);
+        }
+
+        function confirmarDelete() {
+            if (!isStaff) {
+                alert('Apenas staff do backoffice pode eliminar ementas.');
+                return;
+            }
+            if (confirm('⚠️ Tem a certeza que quer ELIMINAR esta ementa?\n\nEsta ação não pode ser revertida!')) {
+                deletarEmenta();
+            }
+        }
+
+        async function deletarEmenta() {
+            const resultado = await window.ementasFunctions.deletarEmenta(ementaId);
+
+            if (resultado.sucesso) {
+                alert('✅ Ementa eliminada!');
+                window.location.href = 'backoffice-ementas.html';
+            } else {
+                alert('Erro: ' + resultado.mensagem);
+            }
+        }
+
+        function adicionarPrato(dia) {
+            const container = document.getElementById(`${dia}Pratos`);
+            const div = document.createElement('div');
+            div.className = 'prato-input-group';
+            div.innerHTML = `
+                <input type="text" placeholder="Ex: Bacalhau com natas" class="prato-input">
+                <button type="button" class="btn-remove-prato" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>

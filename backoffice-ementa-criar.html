@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Nova Ementa - Olibriglea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/backoffice.css">
+    <link rel="stylesheet" href="css/ementas.css">
+    <link rel="stylesheet" href="css/ementas-adicional.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/includes.js"></script>
+    <script src="js/header-ementa-link.js"></script>
+</head>
+<body>
+    <div data-include="components/header.html"></div>
+
+    <div class="container">
+        <div style="margin-bottom: 2rem;">
+            <a href="backoffice-ementas.html" class="btn-back">← Voltar ao Painel</a>
+        </div>
+
+        <div class="ementa-form">
+            <h2>➕ Criar Nova Ementa Semanal</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data Início (Segunda-feira) <span style="color: #dc2626;">*</span></label>
+                    <input type="date" id="semanaInicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Data Fim (Sexta-feira) <span style="color: #dc2626;">*</span></label>
+                    <input type="date" id="semanaFim" required>
+                </div>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Segunda-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="segundaSopa" placeholder="Ex: Canja">
+                </div>
+                <div id="segundaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('segunda')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Terça-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="tercaSopa" placeholder="Ex: Sopa do dia">
+                </div>
+                <div id="tercaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('terca')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Quarta-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="quartaSopa" placeholder="Ex: Sopa do dia">
+                </div>
+                <div id="quartaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('quarta')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Quinta-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="quintaSopa" placeholder="Ex: Sopa do dia">
+                </div>
+                <div id="quintaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('quinta')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="dia-section">
+                <h4>📅 Sexta-feira</h4>
+                <div class="form-group">
+                    <label>Sopa</label>
+                    <input type="text" id="sextaSopa" placeholder="Ex: Sopa do dia">
+                </div>
+                <div id="sextaPratos" class="pratos-list"></div>
+                <button type="button" class="btn-add-prato" onclick="adicionarPrato('sexta')">+ Adicionar Prato</button>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel" onclick="window.location.href='backoffice-ementas.html'">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-confirm" onclick="salvarEmenta()">
+                    💾 Guardar Ementa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div data-include="components/footer.html"></div>
+    
+    <script src="js/ementas.js"></script>
+
+    <script>
+        (async function() {
+            const scripts = ['config.js', 'auth.js', 'session.js'];
+            for (const script of scripts) {
+                const response = await fetch(`js/${script}`);
+                eval(await response.text());
+            }
+            
+            await new Promise(r => {
+                if (document.querySelector('header nav')) r();
+                else document.addEventListener('includesCarregados', r);
+            });
+            
+            await verificarAcessoBackoffice();
+            inicializarForm();
+        })();
+
+        async function verificarAcessoBackoffice() {
+            const user = await verificarSessao();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const { data: staff } = await supabase.from('backoffice_users').select('*').eq('id', user.id).single();
+            if (!staff || !staff.ativo) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function inicializarForm() {
+            const hoje = new Date();
+            const diaSemana = hoje.getDay();
+            let diasAteSegunda = (8 - diaSemana) % 7;
+            if (diasAteSegunda === 0) diasAteSegunda = 7;
+            
+            const proximaSegunda = new Date(hoje);
+            proximaSegunda.setDate(hoje.getDate() + diasAteSegunda);
+            
+            const proximaSexta = new Date(proximaSegunda);
+            proximaSexta.setDate(proximaSegunda.getDate() + 4);
+            
+            document.getElementById('semanaInicio').value = proximaSegunda.toISOString().split('T')[0];
+            document.getElementById('semanaFim').value = proximaSexta.toISOString().split('T')[0];
+            
+            ['segunda', 'terca', 'quarta', 'quinta', 'sexta'].forEach(dia => adicionarPrato(dia));
+        }
+
+        function adicionarPrato(dia) {
+            const container = document.getElementById(`${dia}Pratos`);
+            const div = document.createElement('div');
+            div.className = 'prato-input-group';
+            div.innerHTML = `
+                <input type="text" placeholder="Ex: Bacalhau com natas" class="prato-input">
+                <button type="button" class="btn-remove-prato" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        async function salvarEmenta() {
+            const dados = {
+                semana_inicio: document.getElementById('semanaInicio').value,
+                semana_fim: document.getElementById('semanaFim').value,
+                publicado: false,
+                ativo: true
+            };
+
+            if (!dados.semana_inicio || !dados.semana_fim) {
+                alert('Por favor, preencha as datas');
+                return;
+            }
+
+            ['segunda', 'terca', 'quarta', 'quinta', 'sexta'].forEach(dia => {
+                dados[`${dia}_sopa`] = document.getElementById(`${dia}Sopa`).value.trim() || null;
+                const inputs = document.getElementById(`${dia}Pratos`).querySelectorAll('.prato-input');
+                dados[`${dia}_pratos`] = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+            });
+
+            const resultado = await window.ementasFunctions.criarEmenta(dados);
+
+            if (resultado.sucesso) {
+                alert('✅ Ementa criada com sucesso!');
+                window.location.href = `backoffice-ementa-detalhe.html?id=${resultado.ementa.id}`;
+            } else {
+                alert('Erro: ' + resultado.mensagem);
+            }
+        }
+    </script>
+</body>
+</html>
